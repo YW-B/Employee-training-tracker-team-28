@@ -1,0 +1,10 @@
+{
+  "teamId": "t1",
+  "flags": [
+    {"employeeId": "e3", "trainingId": "tr-fire", "category": "Safety", "type": "ExpiringSoon", "expiryDate": "2026-12-05", "status": "open"},
+    {"employeeId": "e4", "trainingId": "tr-gdpr", "category": "Privacy", "type": "Missing", "expiryDate": null, "status": "open"},
+    {"employeeId": "e5", "trainingId": "tr-gdpr", "category": "Privacy", "type": "Expired", "expiryDate": "2026-10-22", "status": "open"},
+    {"employeeId": "e6", "trainingId": "tr-gdpr", "category": "Privacy", "type": "Missing", "expiryDate": null, "status": "resolved"},
+    {"employeeId": "e6", "trainingId": "tr-gdpr", "category": "Privacy", "type": "ExpiringSoon", "expiryDate": "2026-11-30", "status": "open"}
+  ]
+}
