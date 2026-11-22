@@ -1,0 +1,10 @@
+[
+  {"id": "a1", "employeeId": "e1", "trainingId": "tr-fire", "category": "Safety", "dueDate": "2026-10-01", "completedAt": "2026-09-28T09:00:00Z"},
+  {"id": "a2", "employeeId": "e1", "trainingId": "tr-gdpr", "category": "Privacy", "dueDate": "2026-12-15", "completedAt": null},
+  {"id": "a3", "employeeId": "e2", "trainingId": "tr-fire", "category": "Safety", "dueDate": "2026-11-21", "completedAt": null},
+  {"id": "a4", "employeeId": "e3", "trainingId": "tr-fire", "category": "Safety", "dueDate": "2026-11-01", "completedAt": "2026-11-10T14:30:00Z"},
+  {"id": "a5", "employeeId": "e4", "trainingId": "tr-fire", "category": "Safety", "dueDate": "2026-11-11", "completedAt": null},
+  {"id": "a6", "employeeId": "e4", "trainingId": "tr-gdpr", "category": "Privacy", "dueDate": "2026-09-01", "completedAt": "2026-08-30T10:00:00Z"},
+  {"id": "a7", "employeeId": "e5", "trainingId": "tr-gdpr", "category": "Privacy", "dueDate": "2025-10-01", "completedAt": "2025-09-20T10:00:00Z"},
+  {"id": "a8", "employeeId": "e6", "trainingId": "tr-gdpr", "category": "Privacy", "dueDate": "2025-11-01", "completedAt": "2025-10-25T10:00:00Z"}
+]
