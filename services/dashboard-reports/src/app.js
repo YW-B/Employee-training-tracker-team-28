@@ -1,11 +1,44 @@
-// EN: the Express app lives here (no listen() call) so the tests can start it on a random port.
-// Franco: el Express app hena (men gheir listen) 3ashan el tests teshaghalo 3ala port 3ashwa2i.
-// STUB: only /health for now. The service owner replaces this file with the real endpoints.
+// EN: the Express app of Service 3 (no listen() call, so the tests can start it on a random port).
+//     Dependencies (auth, upstream client, today) can be passed in, so tests use fakes for S1/S2.
+// Franco: el Express app bta3 Service 3 (men gheir listen, 3ashan el tests teshaghalo 3ala port 3ashwa2i).
+//     El dependencies (auth, upstream, today) momken tetba3at, f el tests betesta3mel S1/S2 mozayyafeen.
+'use strict';
 const express = require('express');
+const { createAuth } = require('../../common/auth');
+const { createLogger, requestIdMiddleware, requestLogger } = require('../../common/logging');
+const { notFoundHandler, errorHandler } = require('../../common/errors');
+const { createUpstream } = require('./upstream');
+const { createDashboardRouter } = require('./dashboard');
 
-function createApp() {
+// EN: The real auth needs the Cognito settings from the environment. We create it on first use, so
+//     /health keeps working even when those settings are missing (e.g. in the health test).
+// Franco: El auth el 7a2i2i me7tag settings Cognito men el environment. Bne3melo awel ma nesta3melo,
+//     3ashan /health yefdal shaghal law el settings mesh mawgooda.
+function lazyAuth() {
+  let real = null;
+  return {
+    requireAuth(roles) {
+      return (req, res, next) => {
+        try {
+          if (!real) real = createAuth();
+        } catch (err) {
+          return next(err); // EN: missing config -> 500, never "let it through" / Franco: mafeesh config -> 500
+        }
+        return real.requireAuth(roles)(req, res, next);
+      };
+    },
+  };
+}
+
+function createApp(deps = {}) {
+  const logger = deps.logger || createLogger('dashboard-reports');
+  const auth = deps.auth || lazyAuth();
+  const upstream = deps.upstream || createUpstream();
+
   const app = express();
   app.disable('x-powered-by'); // EN: do not advertise the framework / Franco: mate2olsh en da Express
+  app.use(requestIdMiddleware);
+  app.use(requestLogger(logger));
 
   // EN: health check used by Docker, nginx and the team to see the service is alive (no login needed).
   // Franco: check en el service 7ayya; bey-estakhdemo Docker w nginx w e7na (mafeesh login).
@@ -13,6 +46,10 @@ function createApp() {
     res.json({ status: 'ok', service: 'dashboard-reports' });
   });
 
+  app.use(createDashboardRouter({ auth, upstream, today: deps.today }));
+
+  app.use(notFoundHandler);
+  app.use(errorHandler(logger)); // EN: must be last / Franco: lazem yeb2a akher wa7ed
   return app;
 }
 
