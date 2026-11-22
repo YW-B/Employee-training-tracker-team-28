@@ -7,13 +7,12 @@
 //     -> nageeb el employees w el assignments (S1) w el certificates/flags (S2) -> nesta3mel rules el compliance.
 'use strict';
 const express = require('express');
-const { badRequest, forbidden } = require('../../common/errors');
+const { badRequest } = require('../../common/errors');
+const { createTeamData } = require('./teamData');
 const { toDay } = require('./compliance');
 const {
-  evaluateTeam, complianceRate, attentionOrder, flagsFromContract, isOverdue, REASON_ORDER, todayUtc,
+  complianceRate, attentionOrder, isOverdue, REASON_ORDER, todayUtc,
 } = require('./compliance');
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // EN: the public row shape (ComplianceRow in the contract).
 // Franco: shakl el row elly beytla3 (ComplianceRow fel contract).
@@ -46,39 +45,9 @@ function createDashboardRouter({ auth, upstream, store, today = () => todayUtc()
   const managerOnly = auth.requireAuth(['Manager']);
   const serviceOnly = auth.requireAuth(['Service']);
 
-  // EN: Security check 2 (ownership): S1's GET /api/teams returns ONLY the teams this manager manages.
-  //     If {teamId} is not in the list we ask S1 for the team's employees: S1 answers 404 (unknown team)
-  //     or 403 (another manager's team), and we pass that on. Then load all the data in parallel.
-  // Franco: Check amn 2 (el ownership): GET /api/teams men S1 beyrga3 el teams elly el manager da
-  //     modeerha BAS. Law {teamId} mesh fel list bnes2al S1: yerod 404 (team mesh mawgood) aw 403
-  //     (team manager tany) w bnwasselha. Ba3den bnegeeb kol el data fe nafs el wa2t.
-  async function checkTeamAccess(req) {
-    const { teamId } = req.params;
-    if (!UUID.test(teamId)) throw badRequest('teamId must be a UUID', [{ field: 'teamId', issue: 'not a UUID' }]);
-    const ctx = { token: req.headers.authorization.slice('Bearer '.length), requestId: req.requestId };
-
-    const teams = await upstream.getTeams(ctx);
-    const team = Array.isArray(teams) ? teams.find((t) => t.id === teamId) : undefined;
-    if (!team) {
-      await upstream.getTeamEmployees(teamId, ctx); // EN: throws 404 or 403 / Franco: beyrmy 404 aw 403
-      throw forbidden('You are not the manager of this team');
-    }
-    return { team, ctx };
-  }
-
-  // EN: get the team's data from S1 and S2 (in parallel) and apply the compliance rules.
-  // Franco: negeeb data el team men S1 w S2 (fe nafs el wa2t) w nesta3mel rules el compliance.
-  async function evaluate(teamId, ctx) {
-    const [employees, assignments, compliance] = await Promise.all([
-      upstream.getTeamEmployees(teamId, ctx),
-      upstream.getTeamAssignments(teamId, ctx),
-      upstream.getTeamCompliance(teamId, ctx),
-    ]);
-    const day = today();
-    const flags = flagsFromContract(compliance, assignments, day);
-    const rows = evaluateTeam(employees, assignments, flags, day);
-    return { assignments, flags, rows, day };
-  }
+  // EN: ownership check + loading/evaluating the team's data live in teamData.js (shared with reports).
+  // Franco: check el ownership w tahmeel data el team mawgoodeen fe teamData.js (moshtarakeen ma3 el reports).
+  const { checkTeamAccess, evaluate, ctxOf } = createTeamData({ upstream, today });
 
   async function loadTeam(req) {
     const { team, ctx } = await checkTeamAccess(req);
@@ -164,7 +133,7 @@ function createDashboardRouter({ auth, upstream, store, today = () => todayUtc()
   //     kol mowazzaf lel naharda. Bne2ra kol el teams EL AWEL; law S1 aw S2 fashal mabnektebsh 7aga.
   //     Law eshtaghal marteen fe nafs el yom yefdal satr wa7ed le kol mowazzaf (upsert).
   router.post('/api/dashboard/run-snapshot', serviceOnly, wrap(async (req, res) => {
-    const ctx = { token: req.headers.authorization.slice('Bearer '.length), requestId: req.requestId };
+    const ctx = ctxOf(req);
     const teams = await upstream.getTeams(ctx); // EN: a Service token gets ALL teams / Franco: el Service yakhod kol el teams
     const day = today();
     const toSave = [];
@@ -188,4 +157,4 @@ function createDashboardRouter({ auth, upstream, store, today = () => todayUtc()
   return router;
 }
 
-module.exports = { createDashboardRouter, UUID };
+module.exports = { createDashboardRouter };
