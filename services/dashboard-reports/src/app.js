@@ -10,6 +10,7 @@ const { notFoundHandler, errorHandler } = require('../../common/errors');
 const { createUpstream } = require('./upstream');
 const { createDashboardRouter } = require('./dashboard');
 const { createStore } = require('./store');
+const { createReportsRouter } = require('./reports');
 
 // EN: The real auth needs the Cognito settings from the environment. We create it on first use, so
 //     /health keeps working even when those settings are missing (e.g. in the health test).
@@ -70,6 +71,7 @@ function createApp(deps = {}) {
   });
 
   app.use(createDashboardRouter({ auth, upstream, store, today: deps.today }));
+  app.use(createReportsRouter({ auth, upstream, store, today: deps.today }));
 
   app.use(notFoundHandler);
   app.use(errorHandler(logger)); // EN: must be last / Franco: lazem yeb2a akher wa7ed

@@ -50,6 +50,7 @@ function fakeFetch(overrides = {}) {
     calls.push({ url, headers: options.headers });
     const p = new URL(url).pathname;
     for (const [prefix, fn] of Object.entries(overrides)) if (p.startsWith(prefix)) return fn();
+    if (p === '/api/employees/me') return json(200, { id: 'm1', name: 'Mona', teamId: TEAM, role: 'Manager' });
     if (p === '/api/teams') return json(200, [{ id: TEAM, name: 'Operations', managerId: 'm1', managerName: 'Mona', employeeCount: 6 }]);
     if (p === `/api/teams/${TEAM}/employees`) return json(200, load('s1_employees.json'));
     if (p === `/api/teams/${TEAM}/assignments`) return json(200, load('s1_assignments.json'));
@@ -68,8 +69,26 @@ const quietLogger = { debug() {}, info() {}, warn() {}, error() {} };
 // Franco: badeel fel memory le src/store.js: nafs el functions w nafs rule "satr wa7ed lel mowazzaf fel yom".
 function fakeStore() {
   const rows = new Map(); // key "employeeId|date"
+  const runs = new Map(); // key report run id
+  let next = 1;
   return {
     rows,
+    runs,
+    async addReportRun(teamId, category, generatedBy, rowCount) {
+      const id = `90000000-0000-4000-8000-${String(next++).padStart(12, '0')}`;
+      const generatedAt = '2026-11-21T12:00:00.000Z';
+      runs.set(id, { id, teamId, category, generatedBy, generatedAt, rowCount });
+      return { id, generatedAt };
+    },
+    async listReportRuns(teamIds) {
+      return [...runs.values()].filter((r) => teamIds.includes(r.teamId));
+    },
+    async getReportRun(id) {
+      return runs.get(id) || null;
+    },
+    async deleteReportRun(id) {
+      runs.delete(id);
+    },
     async upsertSnapshots(date, list) {
       for (const r of list) rows.set(`${r.employeeId}|${date}`, { ...r, date });
       return list.length;
@@ -88,7 +107,7 @@ function fakeStore() {
   };
 }
 
-async function call(pathName, { bearer, overrides, method = 'GET', store = fakeStore() } = {}) {
+async function call(pathName, { bearer, overrides, method = 'GET', store = fakeStore(), raw = false } = {}) {
   const fake = fakeFetch(overrides);
   const upstream = createUpstream({ s1Url: 'http://s1', s2Url: 'http://s2', fetchImpl: fake.fetchImpl, timeoutMs: 500 });
   const app = createApp({ auth, upstream, store, logger: quietLogger, today: () => '2026-11-21' });
@@ -97,6 +116,9 @@ async function call(pathName, { bearer, overrides, method = 'GET', store = fakeS
     const { port } = server.address();
     const headers = bearer ? { Authorization: `Bearer ${bearer}` } : {};
     const res = await fetch(`http://127.0.0.1:${port}${pathName}`, { method, headers });
+    if (raw || res.status === 204) {
+      return { status: res.status, text: await res.text(), headers: res.headers, calls: fake.calls };
+    }
     return { status: res.status, body: await res.json(), calls: fake.calls };
   } finally {
     server.close();
