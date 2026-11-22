@@ -50,6 +50,7 @@ function createUpstream({
 
   const enc = encodeURIComponent;
   return {
+    getMe: (ctx) => get('S1', s1Url, '/api/employees/me', ctx),
     getTeams: (ctx) => get('S1', s1Url, '/api/teams', ctx),
     getTeamEmployees: (teamId, ctx) => get('S1', s1Url, `/api/teams/${enc(teamId)}/employees`, ctx),
     getTeamAssignments: (teamId, ctx) => get('S1', s1Url, `/api/teams/${enc(teamId)}/assignments`, ctx),
