@@ -9,16 +9,29 @@
 //     Shaghalo (el stack shaghal w el seed w users Cognito mawgoodeen):   node tests/security/run_security_tests.js
 'use strict';
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
-// EN: trust our own self-signed certificate (certs/server.crt) instead of turning TLS checks off:
+// EN: trust our own self-signed certificate (certs/server.crt) instead of turning TLS checks off.
 //     Node reads NODE_EXTRA_CA_CERTS only at start-up, so we start ourselves again once with it set.
-// Franco: neseddaa2 el certificate bta3na (certs/server.crt) badal ma ne2fel check el TLS:
+//     If the PC already uses its own extra CA file (antivirus, company proxy), we keep it: both files are
+//     joined into one temporary bundle, because Node accepts only one file there.
+// Franco: neseddaa2 el certificate bta3na (certs/server.crt) badal ma ne2fel check el TLS.
 //     Node beye2ra NODE_EXTRA_CA_CERTS wa2t el bedaya bas, f benshaghal nafsena tany mara wa7da beeh.
+//     Law el gehaz 3ando CA file tany (antivirus, proxy el shereka) bnseebo: bengamma3 el etnein fe file
+//     wa7ed mo2a2at, 3ashan Node beyakhod file wa7ed bas.
 const CA = path.resolve(__dirname, '..', '..', 'certs', 'server.crt');
-if (!process.env.NODE_EXTRA_CA_CERTS && fs.existsSync(CA)) {
-  const r = spawnSync(process.execPath, [__filename, ...process.argv.slice(2)], { stdio: 'inherit', env: { ...process.env, NODE_EXTRA_CA_CERTS: CA } });
+if (!process.env.ETT_CA_READY && fs.existsSync(CA)) {
+  let bundle = CA;
+  const existing = process.env.NODE_EXTRA_CA_CERTS;
+  if (existing && path.resolve(existing) !== CA && fs.existsSync(existing)) {
+    bundle = path.join(os.tmpdir(), 'ett-ca-bundle.pem');
+    fs.writeFileSync(bundle, `${fs.readFileSync(existing, 'utf8')}\n${fs.readFileSync(CA, 'utf8')}`);
+  }
+  const r = spawnSync(process.execPath, [__filename, ...process.argv.slice(2)], {
+    stdio: 'inherit', env: { ...process.env, NODE_EXTRA_CA_CERTS: bundle, ETT_CA_READY: '1' },
+  });
   process.exit(r.status === null ? 1 : r.status);
 }
 
