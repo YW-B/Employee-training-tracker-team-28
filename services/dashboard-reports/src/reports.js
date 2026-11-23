@@ -52,7 +52,7 @@ function certificateStatus(a, flags) {
   return a.completedAt ? 'Valid' : 'Not yet required';
 }
 
-function createReportsRouter({ auth, upstream, store, today = () => todayUtc() }) {
+function createReportsRouter({ auth, upstream, store, logger = null, today = () => todayUtc() }) {
   const router = express.Router();
   const { checkTeamAccess, evaluate, ctxOf } = createTeamData({ upstream, today });
 
@@ -101,6 +101,13 @@ function createReportsRouter({ auth, upstream, store, today = () => todayUtc() }
   // Franco: 6.7 nafs el rows ka CSV lel download (bel 7emaya men CSV injection men csv.js).
   router.get('/api/reports/teams/:teamId/export', wrap(async (req, res) => {
     const report = await buildReport(req);
+    // EN: audit event: who exported which team's data (ids only, no personal data in the log).
+    // Franco: event lel audit: meen nazzel data anhy team (ids bas, mafeesh data shakhseya fel log).
+    if (logger) {
+      logger.info('report_exported', {
+        requestId: req.requestId, userSub: req.user.sub, teamId: report.teamId, category: report.category, rows: report.rows.length,
+      });
+    }
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="team-report.csv"');
     res.send(toCsv(CSV_COLUMNS, report.rows));
