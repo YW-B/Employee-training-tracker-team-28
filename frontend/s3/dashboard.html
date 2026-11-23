@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!-- EN: Service 3 manager dashboard: compliance summary, 30-day trend, attention list and employees.
+     Franco: Dashboard el manager bta3 Service 3: molakhas el compliance, trend 30 yom, el attention list w el mowazzafeen. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - Training Tracker</title>
+  <link rel="stylesheet" href="/common/style.css">
+</head>
+<body>
+  <main>
+    <h1>Team compliance dashboard</h1>
+    <p class="lead">Who is compliant, who needs attention, and how the team is doing over time.</p>
+
+    <div class="row">
+      <div>
+        <label for="team">Team</label>
+        <select id="team"></select>
+      </div>
+      <button id="refresh" type="button" class="secondary">Refresh</button>
+    </div>
+
+    <h2>Summary</h2>
+    <div id="summary" class="cards"></div>
+
+    <h2>Compliance rate, last 30 days</h2>
+    <div id="trend" class="panel chart"></div>
+
+    <h2>Needs attention</h2>
+    <div id="attention"></div>
+
+    <h2>Employees</h2>
+    <div class="row">
+      <div>
+        <label for="status">Show</label>
+        <select id="status">
+          <option value="">Everyone</option>
+          <option value="compliant">Compliant</option>
+          <option value="non-compliant">Non-compliant</option>
+        </select>
+      </div>
+    </div>
+    <div id="employees"></div>
+  </main>
+
+  <script src="/common/config.js"></script>
+  <script src="/config.local.js"></script>
+  <script src="/common/auth.js"></script>
+  <script src="/common/api.js"></script>
+  <script src="/common/ui.js"></script>
+  <script src="/s3/s3-common.js"></script>
+  <script src="/s3/dashboard.js"></script>
+</body>
+</html>

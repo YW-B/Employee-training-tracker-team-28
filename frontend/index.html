@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!-- EN: Sign-in page (Cognito e-mail + password, then the MFA code if Cognito asks for one).
+     Franco: Page el login (email + password b Cognito, ba3den code el MFA law Cognito talabo). -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in - Training Tracker</title>
+  <link rel="stylesheet" href="/common/style.css">
+</head>
+<body>
+  <main class="signin">
+    <h1>Training Tracker</h1>
+    <p class="lead">Sign in with your work e-mail.</p>
+
+    <form id="password-form" class="panel" autocomplete="on">
+      <label for="email">E-mail</label>
+      <input id="email" type="email" autocomplete="username" required maxlength="254">
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required maxlength="256">
+      <button type="submit">Sign in</button>
+    </form>
+
+    <form id="mfa-form" class="panel" hidden>
+      <label for="code">6-digit code from your authenticator app</label>
+      <input id="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+      <button type="submit">Confirm</button>
+    </form>
+  </main>
+
+  <script src="/common/config.js"></script>
+  <script src="/config.local.js"></script>
+  <script src="/common/auth.js"></script>
+  <script src="/common/ui.js"></script>
+  <script src="/common/login.js"></script>
+</body>
+</html>
