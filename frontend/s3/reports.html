@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<!-- EN: Service 3 reports: build a team report (optionally one category), download it as CSV, see and delete history.
+     Franco: Reports Service 3: ne3mel report lel team (aw category wa7da), nenazzelo CSV, w nshoof/nemsa7 el tareekh. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reports - Training Tracker</title>
+  <link rel="stylesheet" href="/common/style.css">
+</head>
+<body>
+  <main>
+    <h1>Team reports</h1>
+    <p class="lead">One row per assigned training, with its certificate status and the employee's compliance.</p>
+
+    <form id="report-form" class="row">
+      <div>
+        <label for="team">Team</label>
+        <select id="team"></select>
+      </div>
+      <div>
+        <label for="category">Category (optional)</label>
+        <input id="category" maxlength="50" placeholder="e.g. Safety">
+      </div>
+      <button id="generate" type="submit">Generate report</button>
+      <button id="export" type="button" class="secondary">Download CSV</button>
+    </form>
+
+    <h2 id="report-title" hidden>Report</h2>
+    <div id="report"></div>
+
+    <h2>Report history</h2>
+    <div id="history"></div>
+  </main>
+
+  <script src="/common/config.js"></script>
+  <script src="/config.local.js"></script>
+  <script src="/common/auth.js"></script>
+  <script src="/common/api.js"></script>
+  <script src="/common/ui.js"></script>
+  <script src="/s3/s3-common.js"></script>
+  <script src="/s3/reports.js"></script>
+</body>
+</html>
