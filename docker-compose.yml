@@ -75,6 +75,8 @@ services:
     environment:
       <<: *service-env
       PORT: "5001"
+      # EN: S1 sends its logs to CloudWatch with its own writer (src/aws.js) / Franco: S1 beyeb3at el logs b writer bta3o
+      CLOUDWATCH_LOG_GROUP: /ett/s1
       # EN: this service logs in to Postgres with ITS OWN limited role, never the admin user.
       # Franco: el service di bet-dkhol Postgres bel role bta3ha el mahdood, 3omraha ma betest3mel el admin.
       DB_USER: svc_s1
@@ -94,6 +96,8 @@ services:
     environment:
       <<: *service-env
       PORT: "5002"
+      # EN: also send this service's JSON logs to CloudWatch Logs (Floci) / Franco: ben-ba3at el logs le CloudWatch kaman
+      CLOUDWATCH_LOG_GROUP: /ett/s2
       # EN: this service logs in to Postgres with ITS OWN limited role, never the admin user.
       # Franco: el service di bet-dkhol Postgres bel role bta3ha el mahdood, 3omraha ma betest3mel el admin.
       DB_USER: svc_s2
@@ -113,6 +117,8 @@ services:
     environment:
       <<: *service-env
       PORT: "5003"
+      # EN: also send this service's JSON logs to CloudWatch Logs (Floci) / Franco: ben-ba3at el logs le CloudWatch kaman
+      CLOUDWATCH_LOG_GROUP: /ett/s3
       # EN: this service logs in to Postgres with ITS OWN limited role, never the admin user.
       # Franco: el service di bet-dkhol Postgres bel role bta3ha el mahdood, 3omraha ma betest3mel el admin.
       DB_USER: svc_s3

@@ -32,7 +32,20 @@ function redact(value, depth = 0) {
 //     (or later by Yahia's CloudWatch shipper); by default it prints to stdout, which Docker collects.
 // Franco: createLogger('employee-training') -> logger.info('event', {...}). `write` momken yetghayyar fel
 //     tests (aw ba3den bel CloudWatch shipper bta3 Yahia); by default beyetba3 3al stdout w Docker beylemmo.
-function createLogger(service, { write = (line) => process.stdout.write(`${line}\n`), level = process.env.LOG_LEVEL || 'info' } = {}) {
+// EN: default output: stdout always; plus CloudWatch Logs when CLOUDWATCH_LOG_GROUP is set (cloudwatch.js).
+// Franco: el output el 3ady: stdout dayman; w CloudWatch Logs kaman law CLOUDWATCH_LOG_GROUP mawgood (cloudwatch.js).
+function defaultWrite(env = process.env) {
+  const toStdout = (line) => process.stdout.write(`${line}\n`);
+  if (!env.CLOUDWATCH_LOG_GROUP) return toStdout;
+  const { createCloudWatchShipper } = require('./cloudwatch');
+  const shipper = createCloudWatchShipper({ logGroup: env.CLOUDWATCH_LOG_GROUP });
+  return (line) => {
+    toStdout(line);
+    shipper.push(line);
+  };
+}
+
+function createLogger(service, { write = defaultWrite(), level = process.env.LOG_LEVEL || 'info' } = {}) {
   const order = { debug: 10, info: 20, warn: 30, error: 40 };
   function log(lvl, event, fields = {}) {
     if (order[lvl] < (order[level] || 20)) return;
@@ -87,4 +100,4 @@ function requestLogger(logger) {
   };
 }
 
-module.exports = { createLogger, redact, requestIdMiddleware, requestLogger, REDACTED };
+module.exports = { createLogger, defaultWrite, redact, requestIdMiddleware, requestLogger, REDACTED };

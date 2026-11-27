@@ -71,7 +71,7 @@ function createApp(deps = {}) {
   });
 
   app.use(createDashboardRouter({ auth, upstream, store, today: deps.today }));
-  app.use(createReportsRouter({ auth, upstream, store, today: deps.today }));
+  app.use(createReportsRouter({ auth, upstream, store, logger, today: deps.today }));
 
   app.use(notFoundHandler);
   app.use(errorHandler(logger)); // EN: must be last / Franco: lazem yeb2a akher wa7ed
