@@ -11,6 +11,6 @@ Each reminder is sent once. The `notified_at` field prevents duplicates when the
 - The API key is a secret. It lives in **AWS Secrets Manager** (`ett/sendgrid`), created by `infra/floci/init.py` and never overwritten. S2 reads it at run time through its own IAM role. S1 and S3 have no permission to read it.
 - The key is never written to the code, the repository, a log line, an error message or a response.
 - Without a real key (real keys start with `SG.`), the job logs "email skipped" instead of failing. This is how the local stack runs, because the real key must never be committed.
-- The secret scan (`scripts/secret_review.js`) would flag a SendGrid key committed by mistake.
+- The secret scans (gitleaks in CI, and `scripts/secret_review.js`) would flag a SendGrid key committed by mistake.
 
 **[EVIDENCE NEEDED: the run-check JSON answer, e.g. `{ "flagsRaised": .., "flagsResolved": .., "remindersSent": .., "remindersSkipped": .. }`, and the matching "email skipped" log line, from a real run.]**

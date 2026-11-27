@@ -19,5 +19,5 @@ Tick each item when the real screenshot, link or value is in the report. Never i
 | 13 | Fresh-clone check screenshot | 15 | Karim |
 | 14 | App screenshots 01–06 and 12 listed in `docs/evidence/README.md` | 2, 8, 10 | Yahia (S3), Kerolus (S1), Karim (S2) |
 | 15 | Each member's contribution statement, in their own words | contributions | each member |
-| 17 | CI secret scan (gitleaks workflow): merged or not? Update sections 7, 8 and 16 to match | 7, 8 | Karim |
+| 17 | Screenshot of a green gitleaks run (GitHub Actions tab) | 8 | Karim |
 | 16 | Exact submission deadline (date and time) and required file format | - | Yahia |

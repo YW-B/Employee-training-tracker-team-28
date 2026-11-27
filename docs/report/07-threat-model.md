@@ -10,6 +10,6 @@ The full threat model, with the trust boundaries, every control's code location 
 | T4 | SQL injection | API / data | All SQL through `db.js`, which refuses quoted or stacked SQL; input validated first | db tests; T12 |
 | T5 | Malicious or oversized upload | API | Magic-byte allow-list, 5 MB limit (413/415), random storage key, download only as an attachment through a pre-signed URL | T11, T13 |
 | T6 | Public or misconfigured storage | Cloud config | Private bucket with Block Public Access, KMS and versioning; only S2's IAM role can reach it; 5-minute pre-signed URLs | T15 (and section 16 for what Floci does not enforce) |
-| T7 | Leaked secrets | Cloud config / data | Secrets Manager, read through each service's IAM role; `.env` is local only and git-ignored; secret scan with `scripts/secret_review.js` (CI scan: see section 8) | T14 |
+| T7 | Leaked secrets | Cloud config / data | Secrets Manager, read through each service's IAM role; `.env` is local only and git-ignored; S1 and S3 read their DB login from Secrets Manager; gitleaks in CI and `scripts/secret_review.js` | T14 |
 | T8 | Sensitive data in logs | Data | Logger redacts tokens, passwords and Authorization headers; only the path is logged (no query, body or headers) | logging tests; section 11 |
 | T9 | Tampered or wrong compliance results (half numbers, formula injection in CSV, duplicate snapshots) | Data integrity | 502/503 instead of partial numbers; snapshot written in one transaction, one row per employee per day; CSV cells escaped; only Verified certificates count | S3 tests; T16 |
