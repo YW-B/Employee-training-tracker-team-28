@@ -23,13 +23,21 @@
     return node;
   }
 
+  // EN: banners go right under the top bar (or at the top of the page when there is no bar, e.g. sign-in).
+  // Franco: el banners beteegi ta7t el bar el fo2any 3ala tool (aw fo2 khales law mafeesh bar, zay el login).
+  function placeBanner(banner) {
+    const bar = root.document.querySelector('.topbar');
+    if (bar) bar.after(banner);
+    else root.document.body.prepend(banner);
+  }
+
   // EN: the red banner at the top of the page. showError(null) hides it.
   // Franco: el banner el a7mar fo2 el page. showError(null) bey-khabbeeh.
   function showError(message) {
     let banner = root.document.getElementById('error-banner');
     if (!banner) {
       banner = el('div', { id: 'error-banner', class: 'banner error', role: 'alert', hidden: true });
-      root.document.body.prepend(banner);
+      placeBanner(banner);
     }
     banner.textContent = message || '';
     banner.hidden = !message;
@@ -39,7 +47,7 @@
     let banner = root.document.getElementById('info-banner');
     if (!banner) {
       banner = el('div', { id: 'info-banner', class: 'banner info', role: 'status', hidden: true });
-      root.document.body.prepend(banner);
+      placeBanner(banner);
     }
     banner.textContent = message || '';
     banner.hidden = !message;
@@ -69,6 +77,10 @@
       el('span', { class: 'who' }, user.roles.join(', ')),
       el('button', { type: 'button', class: 'secondary', onclick: () => root.ETT.auth.signOut() }, 'Sign out'));
     root.document.body.prepend(nav);
+    for (const id of ['error-banner', 'info-banner']) {
+      const b = root.document.getElementById(id);
+      if (b) nav.after(b); // EN: a banner shown before the nav moves under it / Franco: el banner yenzel ta7t el nav
+    }
   }
 
   // EN: one call at the top of each protected page: checks sign-in and role, then draws the nav.

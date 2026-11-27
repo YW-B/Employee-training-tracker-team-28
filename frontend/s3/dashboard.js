@@ -15,14 +15,18 @@
   // EN: the summary cards (contract 6.1).
   // Franco: cards el molakhas (contract 6.1).
   function renderSummary(s) {
-    const card = (value, label) => el('div', { class: 'card' }, el('div', { class: 'value' }, value), el('div', { class: 'label' }, label));
+    // EN: the colour band of each card: green = fine, orange = watch it, red = a problem to fix.
+    // Franco: lon el sharee7a: akhdar = tamam, borto2any = khally balak, a7mar = moshkela lazem tet7al.
+    const card = (value, label, kind) => el('div', { class: `card ${kind}` }, el('div', { class: 'value' }, value), el('div', { class: 'label' }, label));
+    const problem = (n) => (n > 0 ? 'bad' : 'ok');
+    const rateKind = s.complianceRate >= 90 ? 'ok' : s.complianceRate >= 70 ? 'warn' : 'bad';
     document.getElementById('summary').replaceChildren(
-      card(`${s.complianceRate}%`, 'Compliance rate'),
-      card(`${s.compliantCount} / ${s.employeeCount}`, 'Compliant employees'),
-      card(s.nonCompliantByReason.OverdueTraining, 'With overdue training'),
-      card(s.nonCompliantByReason.CertificateMissing, 'Certificate missing'),
-      card(s.nonCompliantByReason.CertificateExpired, 'Certificate expired'),
-      card(s.expiringWithin30Days, 'Certificates expiring in 30 days'),
+      card(`${s.complianceRate}%`, 'Compliance rate', rateKind),
+      card(`${s.compliantCount} / ${s.employeeCount}`, 'Compliant employees', rateKind),
+      card(s.nonCompliantByReason.OverdueTraining, 'With overdue training', problem(s.nonCompliantByReason.OverdueTraining)),
+      card(s.nonCompliantByReason.CertificateMissing, 'Certificate missing', problem(s.nonCompliantByReason.CertificateMissing)),
+      card(s.nonCompliantByReason.CertificateExpired, 'Certificate expired', problem(s.nonCompliantByReason.CertificateExpired)),
+      card(s.expiringWithin30Days, 'Certificates expiring in 30 days', s.expiringWithin30Days > 0 ? 'warn' : 'ok'),
     );
   }
 
