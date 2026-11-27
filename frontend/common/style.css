@@ -1,73 +1,218 @@
-/* EN: shared look for every page: plain, readable, works on a laptop and a phone.
-   Franco: el shakl el moshtarak le kol page: basit, wade7, shaghal 3ala laptop w mobile. */
+/* EN: Shared look for every page (S1, S2, S3). Pine header with a brass "seal" mark, cool paper background,
+       quiet white panels, status colours that read like a certificate's pass / warning / fail.
+       Only local fonts (the CSP allows no outside files). Works on a phone; keyboard focus is always visible.
+   Franco: El shakl el moshtarak le kol page (S1, S2, S3). Header lono pine w 3alama "seal" brass, khalfeya
+       fat7a, panels beeda hadya, w alwan el status zay certificate: naga7 / tanbeeh / fashal.
+       Fonts local bas (el CSP mesh beysma7 b files men barra). Shaghal 3al mobile; el focus dayman bayen. */
 :root {
-  --ink: #1d2433;
-  --muted: #5b6475;
-  --line: #d9dee7;
-  --bg: #f5f7fa;
+  --pine: #123f3a;
+  --pine-2: #1b5650;
+  --paper: #f5f7f4;
   --card: #ffffff;
-  --accent: #1f5fbf;
-  --ok: #1d7a46;
-  --warn: #a35f00;
-  --bad: #b42318;
+  --ink: #1b2421;
+  --muted: #5d6b66;
+  --line: #dde3dc;
+  --brass: #b5852b;
+  --brass-soft: #f4ead6;
+  --ok: #1e7a4c;
+  --ok-soft: #e2f2e9;
+  --warn: #a4600b;
+  --warn-soft: #fbefdc;
+  --bad: #b2261e;
+  --bad-soft: #fbe5e3;
+  --radius-panel: 12px;
+  --radius-control: 7px;
+  --shadow: 0 1px 2px rgba(18, 63, 58, 0.06), 0 6px 18px rgba(18, 63, 58, 0.06);
 }
+
 * { box-sizing: border-box; }
-body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
-main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; }
-h1 { font-size: 24px; margin: 0 0 4px; }
-h2 { font-size: 18px; margin: 28px 0 10px; }
-p.lead { color: var(--muted); margin: 0 0 20px; }
-a { color: var(--accent); }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font: 15px/1.55 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+main { max-width: 1120px; margin: 0 auto; padding: 32px 20px 64px; }
 
-/* EN: top navigation / Franco: el navigation el fo2any */
-.topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 10px 16px; background: var(--ink); color: #fff; }
-.topbar a { color: #dbe4f3; text-decoration: none; }
-.topbar a.active, .topbar a:hover { color: #fff; text-decoration: underline; }
-.topbar .brand { font-weight: 700; color: #fff; }
-.topbar .links { display: flex; flex-wrap: wrap; gap: 14px; flex: 1; }
-.topbar .who { color: #aab6c9; font-size: 13px; }
+/* EN: headings: heavier and tighter, the page title gets a short brass rule under it.
+   Franco: el 3anaween: te2eela w mazgoota, w 3enwan el page ta7teh khatt brass so8ayyar. */
+h1 { font-size: 28px; line-height: 1.2; font-weight: 750; letter-spacing: -0.02em; margin: 0 0 6px; }
+h1::after { content: ""; display: block; width: 44px; height: 3px; margin-top: 12px; border-radius: 2px; background: var(--brass); }
+h2 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; margin: 36px 0 12px; color: var(--pine); }
+p.lead { color: var(--muted); margin: 10px 0 22px; max-width: 72ch; }
+a { color: var(--pine-2); text-underline-offset: 3px; }
+a:hover { color: var(--pine); }
 
-/* EN: banners / Franco: el banners */
-.banner { padding: 10px 16px; font-weight: 600; }
-.banner.error { background: #fde8e7; color: var(--bad); border-bottom: 1px solid #f5c2be; }
-.banner.info { background: #e7f0fd; color: var(--accent); border-bottom: 1px solid #c3d6f5; }
+/* EN: keyboard focus is always clearly visible (brass ring).
+   Franco: el focus bel keyboard dayman bayen (7al2a brass). */
+:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; border-radius: 4px; }
 
-/* EN: forms and buttons / Franco: el forms w el zorayer */
-label { display: block; font-weight: 600; margin: 12px 0 4px; }
-input, select { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff; min-width: 220px; }
-button { font: inherit; padding: 8px 16px; border: 0; border-radius: 6px; background: var(--accent); color: #fff; cursor: pointer; }
-button.secondary { background: transparent; color: inherit; border: 1px solid currentColor; }
-button.danger { background: var(--bad); }
-button:disabled { opacity: 0.6; cursor: wait; }
-.row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+/* ---------------------------------------------------------------- top bar
+   EN: pine bar; the brand has a small round seal; links are tabs with a brass underline for the current page.
+   Franco: bar pine; el brand ganbo seal so8ayyar medawwar; el links tabs w ta7t el page el 7alya khatt brass. */
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px;
+  padding: 0 20px; min-height: 60px;
+  background: var(--pine); color: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+}
+.topbar .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 750; color: #fff; text-decoration: none; letter-spacing: -0.01em; }
+.topbar .brand::before {
+  content: "\2713"; display: inline-grid; place-items: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--brass); color: var(--pine); font-size: 15px; font-weight: 800;
+  box-shadow: 0 0 0 3px rgba(181, 133, 43, 0.28);
+}
+.topbar .links { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+.topbar .links a {
+  color: #cfe0dc; text-decoration: none; padding: 19px 10px 17px;
+  border-bottom: 3px solid transparent; font-size: 14px;
+}
+.topbar .links a:hover { color: #fff; }
+.topbar .links a.active { color: #fff; border-bottom-color: var(--brass); font-weight: 600; }
+.topbar .who { color: #9fbdb7; font-size: 13px; padding: 3px 10px; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 999px; }
+.topbar button.secondary { color: #fff; border-color: rgba(255, 255, 255, 0.35); padding: 6px 14px; }
+.topbar button.secondary:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* ---------------------------------------------------------------- banners */
+.banner { padding: 12px 20px; font-weight: 600; border-left: 4px solid currentColor; }
+.banner.error { background: var(--bad-soft); color: var(--bad); }
+.banner.info { background: var(--ok-soft); color: var(--ok); }
+
+/* ---------------------------------------------------------------- forms and buttons */
+label { display: block; font-weight: 600; font-size: 13px; color: var(--muted); margin: 14px 0 6px; }
+input, select, textarea {
+  font: inherit; color: var(--ink);
+  padding: 9px 12px; min-width: 220px; max-width: 100%;
+  border: 1px solid var(--line); border-radius: var(--radius-control); background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input:hover, select:hover { border-color: #c4ccc3; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--pine-2); box-shadow: 0 0 0 3px rgba(27, 86, 80, 0.15); }
+input[type="file"] { padding: 7px; background: var(--paper); }
+
+button {
+  font: inherit; font-weight: 600; cursor: pointer;
+  padding: 9px 18px; border: 1px solid var(--pine); border-radius: var(--radius-control);
+  background: var(--pine); color: #fff;
+  transition: background-color 0.15s, transform 0.05s;
+}
+button:hover { background: var(--pine-2); }
+button:active { transform: translateY(1px); }
+button.secondary { background: transparent; color: var(--pine); border-color: #b9c6c0; }
+button.secondary:hover { background: #e9efeb; }
+button.danger { background: #fff; color: var(--bad); border-color: #e6b8b4; }
+button.danger:hover { background: var(--bad-soft); }
+button:disabled { opacity: 0.55; cursor: wait; }
+
+.row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; }
 .row label { margin-top: 0; }
+/* EN: a checkbox keeps its own size and sits next to its text. / Franco: el checkbox fe 7agmo w ganb el kalam bta3o. */
+input[type="checkbox"], input[type="radio"] { min-width: 0; width: 18px; height: 18px; padding: 0; accent-color: var(--pine); vertical-align: -3px; margin: 0 8px 0 0; }
+label.check { display: inline-flex; align-items: center; color: var(--ink); font-size: 14px; padding-bottom: 10px; cursor: pointer; }
+.stack-top { margin-top: 14px; }
+td .row { gap: 8px; align-items: center; }
+td button { padding: 5px 12px; font-size: 13px; }
 
-/* EN: cards with big numbers / Franco: cards feeha ar2am kebeera */
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
-.card .value { font-size: 28px; font-weight: 700; }
-.card .label { color: var(--muted); font-size: 13px; }
-.panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+/* ---------------------------------------------------------------- panels and stat cards
+   EN: a stat card is a certificate tab: a coloured band on the left says ok / warning / problem.
+   Franco: el stat card zay tab certificate: sharee7a molawwana 3al shemal bet2ool tamam / tanbeeh / moshkela. */
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-panel); padding: 20px; box-shadow: var(--shadow); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+.card {
+  position: relative; display: block; overflow: hidden;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+  padding: 16px 18px 16px 22px; color: inherit; text-decoration: none;
+}
+.card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--pine-2); }
+.card.ok::before { background: var(--ok); }
+.card.warn::before { background: var(--warn); }
+.card.bad::before { background: var(--bad); }
+.card .value { font-size: 30px; line-height: 1.15; font-weight: 750; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.card .label { color: var(--muted); font-size: 13px; margin-top: 4px; }
+a.card:hover { border-color: #b9c6c0; box-shadow: var(--shadow); }
+a.card .value { font-size: 18px; color: var(--pine); }
 
-/* EN: tables / Franco: el gadawel */
-table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
-th { background: #eef1f6; font-size: 13px; color: var(--muted); }
-td.num { text-align: right; font-variant-numeric: tabular-nums; }
-.empty { color: var(--muted); padding: 14px 0; }
+/* ---------------------------------------------------------------- tables */
+table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-panel);
+  overflow: hidden; box-shadow: var(--shadow);
+}
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+/* EN: short values (dates, numbers, buttons) stay on one line; the first column (names, titles) may wrap.
+   Franco: el 2eyam el 2osayyara (tawareekh, ar2am, zorayer) fe satr wa7ed; el column el awel momken yenzel satr. */
+td { white-space: nowrap; }
+td:first-child, td.wrap { white-space: normal; }
+td .row { flex-wrap: nowrap; }
+th { background: #edf2ef; color: var(--pine); font-size: 13px; font-weight: 650; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: #f8faf8; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.empty { color: var(--muted); padding: 22px; text-align: center; background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius-panel); }
 
-/* EN: status pills / Franco: el status el molawwana */
-.pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #eef1f6; }
-.pill.ok { background: #e3f4ea; color: var(--ok); }
-.pill.warn { background: #fdf1df; color: var(--warn); }
-.pill.bad { background: #fde8e7; color: var(--bad); }
+/* ---------------------------------------------------------------- status pills */
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 2px 10px; border-radius: 999px; white-space: nowrap;
+  font-size: 12px; font-weight: 650; background: #eef2ef; color: var(--muted);
+}
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
 
-/* EN: sign-in page / Franco: page el login */
-.signin { max-width: 380px; margin: 8vh auto; }
-.signin input { width: 100%; }
-.signin button { width: 100%; margin-top: 18px; }
+/* ---------------------------------------------------------------- sign-in page
+   EN: two halves: the pine side says what the tool is, the white side is the form. Stacks on a phone.
+   Franco: noseen: el no2s el pine beye2ool el tool di eh, w el abyad feeh el form. Bey-rattab ta7t ba3d 3al mobile. */
+body.signin-page { min-height: 100vh; display: grid; grid-template-columns: minmax(280px, 5fr) 7fr; }
+.signin-side {
+  display: flex; flex-direction: column; justify-content: space-between; gap: 32px;
+  padding: 48px; background: var(--pine); color: #e3eeeb;
+}
+.signin-side .brand { display: inline-flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 750; color: #fff; }
+.signin-side .brand::before {
+  content: "\2713"; display: inline-grid; place-items: center;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--brass); color: var(--pine); font-weight: 800;
+  box-shadow: 0 0 0 4px rgba(181, 133, 43, 0.28);
+}
+.signin-side p { font-size: 22px; line-height: 1.35; font-weight: 600; letter-spacing: -0.01em; color: #fff; max-width: 22ch; margin: 0; }
+.signin-side small { color: #9fbdb7; }
+.signin { width: 100%; max-width: 400px; margin: auto; padding: 48px 20px; }
+.signin h1 { font-size: 24px; }
+.signin .panel { padding: 24px; }
+.signin input { width: 100%; min-width: 0; }
+.signin button { width: 100%; margin-top: 22px; padding: 11px; }
 
-/* EN: trend chart / Franco: chart el trend */
-.chart svg { width: 100%; height: 200px; display: block; }
-.chart .bar { fill: var(--accent); }
+/* ---------------------------------------------------------------- trend chart (S3) */
+.chart svg { width: 100%; height: auto; aspect-ratio: 3 / 1; display: block; }
+.chart .bar { fill: var(--pine-2); }
+.chart .bar:hover { fill: var(--brass); }
 .chart text { font-size: 11px; fill: var(--muted); }
+
+/* ---------------------------------------------------------------- phones */
+@media (max-width: 720px) {
+  main { padding: 22px 14px 48px; }
+  h1 { font-size: 23px; }
+  .topbar { padding: 8px 14px; }
+  .topbar .links { order: 3; flex-basis: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  .topbar .links a { padding: 10px 8px; white-space: nowrap; }
+  input, select { min-width: 0; width: 100%; }
+  .row > div { flex: 1 1 100%; }
+  table { display: block; overflow-x: auto; }
+  td:first-child { white-space: nowrap; }
+  body.signin-page { grid-template-columns: 1fr; }
+  .signin-side { padding: 28px 20px; }
+  .signin-side p { font-size: 18px; }
+}
+
+/* EN: people who ask for less motion get none. / Franco: elly talab 7araka a2al mayakhodsh ay 7araka. */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+/* EN: on the sign-in page an error banner spans both halves. / Franco: fe page el login el banner beyakhod el noseen. */
+.signin-page > .banner { grid-column: 1 / -1; }
