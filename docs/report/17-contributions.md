@@ -6,7 +6,7 @@ Each member writes their own statement **in their own words** (run the contribut
 
 ## Kerolus Rafik: Service 1, Employee & Training
 
-Facts from Git: database schema, roles, seed and checks; API contract and ER diagram; shared auth, DB, logging and error modules; Cognito provisioning script; S1 endpoints (lookup and teams, trainings, assignments with Overdue, completion and renewal, team summary); S1 pages; S1 security tests.
+Facts from Git: database schema, roles, seed and checks; API contract and ER diagram; shared auth, DB, logging and error modules; Cognito provisioning script; S1 endpoints (lookup and teams, trainings, assignments with Overdue, completion and renewal, team summary); S1 pages; S1 security tests; S1 database login from Secrets Manager and S1 logs to CloudWatch.
 
 1. **Owned component and at least 3 functions:**
 2. **Frontend:**
@@ -22,7 +22,7 @@ Facts from Git: database schema, roles, seed and checks; API contract and ER dia
 
 ## Karim Saad: Service 2, Certificate & Compliance
 
-Facts from Git: Docker Compose, nginx HTTPS and dev script; Floci init (KMS, bucket, secrets, log groups, IAM, schedules) and the Floci spike; the Docker build-context fix, per-service DB roles, `.gitignore` and `.env.example`; S2 endpoints (upload with magic bytes, list/get/edit/delete with audit, pre-signed download, verify/reject, team compliance, daily check with SendGrid).
+Facts from Git: Docker Compose, nginx HTTPS and dev script; Floci init (KMS, bucket, secrets, log groups, IAM, schedules) and the Floci spike; the Docker build-context fix, per-service DB roles, `.gitignore` and `.env.example`; S2 endpoints (upload with magic bytes, list/get/edit/delete with audit, pre-signed download, verify/reject, team compliance, daily check with SendGrid); S2 pages; S2 security tests; gitleaks CI secret scan.
 
 1. **Owned component and at least 3 functions:**
 2. **Frontend:**
@@ -38,7 +38,7 @@ Facts from Git: Docker Compose, nginx HTTPS and dev script; Floci init (KMS, buc
 
 ## Yahia Waleed: Service 3, Manager Dashboard & Reports
 
-Facts from Git: S3 compliance rules (with hand-calculated tests); dashboard summary, employees and attention endpoints; daily snapshot and trend; team reports, CSV export with formula-injection protection, and report history; the shared frontend shell (sign-in with MFA, API helper, nav, CSP) and the S3 dashboard and reports pages; threat model; security test suite (T01–T17) and secret review; Newman end-to-end tests; CloudWatch log shipping, metric filter, alarm and query scripts; this report.
+Facts from Git: S3 compliance rules (with hand-calculated tests); dashboard summary, employees and attention endpoints; daily snapshot and trend; team reports, CSV export with formula-injection protection, and report history; the shared frontend shell (sign-in with MFA, API helper, nav, CSP) and the S3 dashboard and reports pages; threat model; security test suite (T01–T17) and secret review; Newman end-to-end tests; CloudWatch log shipping, metric filter, alarm and query scripts; S3 database login from Secrets Manager (fail closed, svc_s3 only); UI theme; this report. AWS services in my code: Secrets Manager, CloudWatch (Logs, metric filters, alarms), Cognito (sign-in, MFA, sign-out).
 
 1. **Owned component and at least 3 functions:**
 2. **Frontend:**

@@ -39,3 +39,13 @@ Run `python scripts/dev.py help`. The useful ones: `down`, `reset` (also deletes
 - Port already in use (5432, 8443...): stop the other program, or change the left side of the port in `docker-compose.yml`.
 - Browser says "not secure": expected locally (self-signed certificate).
 - Something odd after a git pull: `python scripts/dev.py up` rebuilds changed services.
+
+## Database logins from Secrets Manager (S1 and S3)
+
+S1 and S3 read their database login from Secrets Manager at start-up. If the secret is missing, the service does not start (fail closed). After `dev.py init` and `node infra/db/load.js all`, and again after every Floci restart, run:
+
+```
+node services/employee-training/scripts/put-db-secret.js
+node services/dashboard-reports/scripts/put-db-secret.js
+docker compose restart s1 s3
+```
