@@ -107,10 +107,10 @@ function fakeStore() {
   };
 }
 
-async function call(pathName, { bearer, overrides, method = 'GET', store = fakeStore(), raw = false } = {}) {
+async function call(pathName, { bearer, overrides, method = 'GET', store = fakeStore(), raw = false, notifier } = {}) {
   const fake = fakeFetch(overrides);
   const upstream = createUpstream({ s1Url: 'http://s1', s2Url: 'http://s2', fetchImpl: fake.fetchImpl, timeoutMs: 500 });
-  const app = createApp({ auth, upstream, store, logger: quietLogger, today: () => '2026-11-21' });
+  const app = createApp({ auth, upstream, store, notifier, env: {}, logger: quietLogger, today: () => '2026-11-21' });
   const server = app.listen(0);
   try {
     const { port } = server.address();

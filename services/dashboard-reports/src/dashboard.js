@@ -35,7 +35,7 @@ function minusDays(day, n) {
   return new Date((toDay(day) - n) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
-function createDashboardRouter({ auth, upstream, store, today = () => todayUtc() }) {
+function createDashboardRouter({ auth, upstream, store, notifier = null, today = () => todayUtc() }) {
   const router = express.Router();
 
   // EN: Security check 1: valid Cognito token AND the right role (401 / 403 from the auth module).
@@ -151,6 +151,11 @@ function createDashboardRouter({ auth, upstream, store, today = () => todayUtc()
       }
     }
     const rowsUpserted = await store.upsertSnapshots(day, toSave);
+    // EN: AFTER the save: tell the SNS topic (team totals only). It never throws, so an SNS problem
+    //     cannot turn a saved snapshot into an error; the answer below stays the same (API contract 6.5).
+    // Franco: BA3D el save: neb3at lel SNS topic (ar2am el teams bas). 3omraha ma bet-throw, f moshkela fe SNS
+    //     mate2labsh snapshot etsayyev le error; el rad ta7t zay ma howa (API contract 6.5).
+    if (notifier) await notifier.publish(day, teams, toSave);
     res.json({ snapshotDate: day, teamsProcessed: teams.length, rowsUpserted });
   }));
 

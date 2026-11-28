@@ -14,7 +14,7 @@ There are also business events: S3's `report_exported` (who exported which team'
 ## Where it goes
 
 - Each service sends the same lines to **CloudWatch Logs** (`/ett/s1`, `/ett/s2`, `/ett/s3`). S2 and S3 use the shared shipper `services/common/cloudwatch.js`. S1 uses its own writer (`services/employee-training/src/aws.js`, AWS SDK), and it also reads its database login from Secrets Manager. Lines are batched, and a CloudWatch outage never breaks the service.
-- `node scripts/setup_log_alarms.js` creates a **metric filter** on each group, which counts `auth_failure` and `forbidden` lines into `ETT/SecurityFailures`. It also creates the **alarm** `ett-repeated-auth-failures`, for 5 or more within 5 minutes.
+- `node scripts/setup_log_alarms.js` creates a **metric filter** on each group, which counts `auth_failure` and `forbidden` lines into `ETT/SecurityFailures`. It also creates the **alarm** `ett-repeated-auth-failures`, for 5 or more within 5 minutes, and two **SNS topics**: the alarm's action notifies `ett-security-alerts` (anyone subscribed, for example the team's e-mail in `ALERT_EMAIL`, gets the alert), and Service 3 publishes the daily compliance summary (team totals only) to `ett-compliance-daily`.
 - `node scripts/generate_suspicious_activity.js` sends 12 forged-token and 6 wrong-role requests on purpose.
 - `node scripts/security_log_queries.js` reads them back, counted per service, per path and per minute.
 
@@ -26,4 +26,6 @@ There are also business events: S3's `report_exported` (who exported which team'
 
 **[EVIDENCE NEEDED: the metric filters and the alarm listed in Floci (screenshot 11-alarm).]**
 
-**Limitation:** Floci creates the alarm but does not evaluate it, so its state stays OK (section 16). On AWS it would move to ALARM and notify the team through SNS.
+**[EVIDENCE NEEDED: the output of `node scripts/sns_peek.js --test`, showing both SNS topics delivering a message (screenshot 13-sns).]**
+
+**Limitation:** Floci creates the alarm but does not evaluate it, so its state stays OK (section 16). On AWS it would move to ALARM and publish to the SNS topic `ett-security-alerts`, which is already set as the alarm's action.

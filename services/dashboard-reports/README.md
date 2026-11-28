@@ -10,7 +10,8 @@ Decides who is **Compliant** from Service 1's assignments and Service 2's certif
 | **Amazon CloudWatch** (Logs, metric filters, alarms) | Every JSON log line (tokens already removed) is sent to the log group `/ett/s3`. The metric filter counts 401/403 events, and the alarm `ett-repeated-auth-failures` fires at 5 or more within 5 minutes. `scripts/security_log_queries.js` reads the security events back. | `services/common/cloudwatch.js`, `scripts/setup_log_alarms.js`, `scripts/security_log_queries.js` |
 | **Amazon Cognito** | Every endpoint accepts only a valid Cognito access token (Manager role, or the Service client for the snapshot job). The shared frontend shell signs people in with Cognito, including the MFA code step for managers, and signs them out with GlobalSignOut. | `services/common/auth.js` (used), `frontend/common/auth.js` |
 | **Amazon RDS for PostgreSQL** (design; local Postgres) | S3's own tables `compliance_snapshots` and `report_runs`, reached only with the least-privilege role `svc_s3` | `src/store.js`, `infra/db/schema.sql` |
-| **AWS IAM** (design) | S3's role may read only `ett/db*` and `ett/service-client` and write only `/ett/s3` (`infra/iam/s3-policy.json`). Floci does not enforce IAM; see `docs/LIMITATIONS.md`. | `infra/iam/s3-policy.json` |
+| **Amazon SNS** (notifications) | After the daily snapshot is saved, S3 publishes one short summary to the topic **`ett-compliance-daily`**: per team, compliant/total and the rate. Only team totals go out, never employee names or IDs. If SNS fails, the snapshot is still saved and the job still answers 200; S3 logs `daily_summary_failed`. The CloudWatch alarm `ett-repeated-auth-failures` notifies a second topic, **`ett-security-alerts`**. `scripts/sns_peek.js` subscribes an SQS queue to both topics to show the messages arriving. | `src/notify.js`, `src/dashboard.js`, `scripts/setup_log_alarms.js`, `scripts/sns_peek.js` |
+| **AWS IAM** (design) | S3's role may read only `ett/db*` and `ett/service-client`, write only `/ett/s3`, and publish only to `ett-compliance-daily` (`infra/iam/s3-policy.json`). Floci does not enforce IAM; see `docs/LIMITATIONS.md`. | `infra/iam/s3-policy.json` |
 
 AWS calls are signed with Signature Version 4 in `services/common/aws.js` (no npm packages). The signature matches Amazon's own botocore library (see `services/common/test/cloudwatch.test.js`).
 
@@ -25,4 +26,4 @@ Floci keeps secrets in memory, so run the script again after Floci restarts. Ins
 
 ## Tests
 
-`npm test` (Node's built-in runner, 89 tests): compliance rules with hand-calculated tables; every endpoint (200, 400, 401, 403, 404, 502, 503); snapshot idempotency; CSV injection; reading the Secrets Manager login (fail closed, least privilege, no password in errors or logs).
+`npm test` (Node's built-in runner, 97 tests): compliance rules with hand-calculated tables; every endpoint (200, 400, 401, 403, 404, 502, 503); snapshot idempotency; CSV injection; reading the Secrets Manager login (fail closed, least privilege, no password in errors or logs); the SNS daily summary (team totals only, published after the save, an SNS failure never fails the job).

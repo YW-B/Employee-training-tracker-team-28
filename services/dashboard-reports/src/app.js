@@ -11,6 +11,7 @@ const { createUpstream } = require('./upstream');
 const { createDashboardRouter } = require('./dashboard');
 const { createStore } = require('./store');
 const { createReportsRouter } = require('./reports');
+const { createNotifier } = require('./notify');
 
 // EN: The real auth needs the Cognito settings from the environment. We create it on first use, so
 //     /health keeps working even when those settings are missing (e.g. in the health test).
@@ -60,6 +61,9 @@ function createApp(deps = {}) {
   const auth = deps.auth || lazyAuth();
   const upstream = deps.upstream || createUpstream();
   const store = deps.store || createStore(lazyDb(deps.dbConfig));
+  // EN: SNS daily summary (off unless SNS_DAILY_TOPIC_ARN is set). Tests pass their own fake notifier.
+  // Franco: el SNS daily summary (ma2fool ella law SNS_DAILY_TOPIC_ARN mawgood). El tests beteb3at notifier mozayyaf.
+  const notifier = deps.notifier || createNotifier({ env: deps.env || process.env, logger });
 
   const app = express();
   app.disable('x-powered-by'); // EN: do not advertise the framework / Franco: mate2olsh en da Express
@@ -72,7 +76,7 @@ function createApp(deps = {}) {
     res.json({ status: 'ok', service: 'dashboard-reports' });
   });
 
-  app.use(createDashboardRouter({ auth, upstream, store, today: deps.today }));
+  app.use(createDashboardRouter({ auth, upstream, store, notifier, today: deps.today }));
   app.use(createReportsRouter({ auth, upstream, store, logger, today: deps.today }));
 
   app.use(notFoundHandler);

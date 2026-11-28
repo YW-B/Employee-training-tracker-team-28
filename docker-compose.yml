@@ -119,6 +119,9 @@ services:
       PORT: "5003"
       # EN: also send this service's JSON logs to CloudWatch Logs (Floci) / Franco: ben-ba3at el logs le CloudWatch kaman
       CLOUDWATCH_LOG_GROUP: /ett/s3
+      # EN: SNS topic for the daily compliance summary (created by "python scripts/dev.py init"); "none" = off.
+      # Franco: el SNS topic lel summary el yomy (beyet3emel b "python scripts/dev.py init"); "none" = ma2fool.
+      SNS_DAILY_TOPIC_ARN: ${SNS_DAILY_TOPIC_ARN:-arn:aws:sns:us-east-1:000000000000:ett-compliance-daily}
       # EN: this service logs in to Postgres with ITS OWN limited role, never the admin user.
       # Franco: el service di bet-dkhol Postgres bel role bta3ha el mahdood, 3omraha ma betest3mel el admin.
       DB_USER: svc_s3

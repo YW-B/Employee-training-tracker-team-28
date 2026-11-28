@@ -22,6 +22,16 @@
       "Resource": [
         "arn:aws:logs:*:*:log-group:/ett/s3:*"
       ]
+    },
+    {
+      "Sid": "PublishDailySummaryOnly",
+      "Effect": "Allow",
+      "Action": [
+        "sns:Publish"
+      ],
+      "Resource": [
+        "arn:aws:sns:*:*:ett-compliance-daily"
+      ]
     }
   ]
 }
