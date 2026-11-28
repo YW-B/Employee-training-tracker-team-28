@@ -1,51 +1,75 @@
 # Individual contribution statements
 
-Each member writes their own statement **in their own words** (run the contribution prompt, then rewrite it). The "facts" lines are taken from the Git history to help, and must be checked by each member.
+Repository: https://github.com/karikasaad/Employee-training-tracker-team-28. Commit links below point to the team repository. Each statement was checked by its owner.
 
 ---
 
 ## Kerolus Rafik: Service 1, Employee & Training
 
-Facts from Git: database schema, roles, seed and checks; API contract and ER diagram; shared auth, DB, logging and error modules; Cognito provisioning script; S1 endpoints (lookup and teams, trainings, assignments with Overdue, completion and renewal, team summary); S1 pages; S1 security tests; S1 database login from Secrets Manager and S1 logs to CloudWatch.
+**1. Owned component and functions.** Service 1 manages people, teams, trainings and assignments. Functions: (a) look up employees and teams with ownership checks; (b) create, list, view and edit trainings; (c) assign a training to an employee with a due date, and list team assignments with the Overdue rule; (d) an employee marks their own assignment completed, and a renewal is created automatically when the training expires; (e) a team summary for the manager page.
 
-1. **Owned component and at least 3 functions:**
-2. **Frontend:**
-3. **Backend / API:**
-4. **Data operations:**
-5. **Security controls:**
-6. **Tests:**
-7. **Integration work:**
-8. **Important technical decisions:**
-9. **Difficulties and how I solved them:**
+**2. Frontend.** Two pages: *My trainings* (summary cards for Overdue / To do / Completed, the assignment table with days overdue and a "Mark completed" button) and *Team trainings* for managers (team summary cards, a per-employee table, and the assign-a-training form). Both call the real S1 API through the shared API helper and show the server's validation messages. Styling uses classes only, because the CSP blocks inline styles.
+
+**3. Backend / API.** Node.js + Express. 13 endpoints: `GET /api/employees/me`, `GET /api/employees/{id}`, `GET /api/teams`, `GET /api/teams/{teamId}/employees`, `GET /api/teams/{teamId}/assignments?status=`, `GET /api/teams/{teamId}/summary`, `POST /api/trainings`, `PUT /api/trainings/{id}`, `GET /api/trainings?category=`, `GET /api/trainings/{id}`, `POST /api/assignments`, `GET /api/assignments/me`, `PATCH /api/assignments/{id}/complete`, plus `/health`. Status codes: 200, 201, 400, 401, 403, 404, 409. S2 and S3 call these endpoints to get employees, teams and assignments, so S1 is the source of truth for the other two services.
+
+**4. Data operations.** Tables: `teams`, `employees`, `trainings`, `assignments` (I also wrote the whole database schema, the per-service roles, the seed data and the database checks). Create: trainings, assignments, renewal assignments. Read/query: own assignments, team assignments filtered by status, team summary. Update: training edit (creator only), assignment completion. A partial unique index stops two open assignments of the same training for one employee; history is never deleted (the S1 role cannot delete assignment history).
+
+**5. Security controls.** Cognito JWT check on every route (shared `auth.js`, which I wrote: signature from JWKS, issuer, token use, client id, expiry); role checks (Manager only for creating trainings, assigning and team views); ownership checks (a manager only sees and changes their own team; an employee only completes their own assignment); input validation (required fields, UUIDs, real dates, due date not in the past); parameterised SQL through the shared DB guard; JSON logs with secrets redacted; the S1 database login is read from AWS Secrets Manager (`ett/db/s1`), so the password is not in the container; the database role `svc_s1` can read only what S1 needs.
+
+**6. Tests.** 22 unit/route tests (`npm test`): rules, lookups and teams, trainings, assignments, completion and renewal, team summary, AWS helpers, frontend helpers and a security test file. An S1 security test suite with an evidence table. The database checks T-DB1 to T-DB11 (duplicate open assignment rejected, renewal coexists, role permissions). All pass.
+
+**7. Integration.** I wrote the API contract and the ER diagram that the three services were built against, the shared auth, DB, logging and error modules used by all services, and the Cognito provisioning script that creates the user pool, groups, test users and the service client. I ran the Cognito checks on Floci and recorded the results.
+
+**8. Important technical decisions.** UTC dates everywhere so "Overdue" means the same on every machine; a training due today is not overdue yet; renewals are created on completion instead of by a job; one shared auth module so every service checks tokens the same way.
+
+**9. Difficulties and how I solved them.** Floci puts `iss = http://floci:4566/...` in tokens, a name that only works inside Docker, so the JWKS check from the host uses the localhost endpoint. The CSP blocked inline styles in the team page, so I replaced them with CSS classes. Agreeing the stack (Node.js for all three services) early avoided rewriting code later.
+
+Commits: [API contract and ER diagram](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/7bda4fb), [schema, roles, seed, checks](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/5f2f369), [auth module](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/bbc62ba), [trainings](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/b4610ad), [assignments and Overdue](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/23394b3), [completion and renewal](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/b76c93b), [S1 pages](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/5b3639f), [Secrets Manager and CloudWatch](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/796971f).
 
 ---
 
-## Karim Saad: Service 2, Certificate & Compliance
+## Karim Saad: Service 2, Certificate & Compliance (and the Docker / Floci platform)
 
-Facts from Git: Docker Compose, nginx HTTPS and dev script; Floci init (KMS, bucket, secrets, log groups, IAM, schedules) and the Floci spike; the Docker build-context fix, per-service DB roles, `.gitignore` and `.env.example`; S2 endpoints (upload with magic bytes, list/get/edit/delete with audit, pre-signed download, verify/reject, team compliance, daily check with SendGrid); S2 pages; S2 security tests; gitleaks CI secret scan.
+**1. Owned component and functions.** Service 2 handles training certificates and compliance. Functions: (a) an employee uploads a certificate file (PDF, JPG, PNG up to 5 MB); (b) list, view, edit and soft-delete own certificates; (c) a manager downloads a certificate through a short-lived link and verifies or rejects it with a reason; (d) team compliance: Missing and Expired flags plus validity, in the shape Service 3 reads; (e) a daily compliance check that raises and resolves flags and e-mails reminders.
 
-1. **Owned component and at least 3 functions:**
-2. **Frontend:**
-3. **Backend / API:**
-4. **Data operations:**
-5. **Security controls:**
-6. **Tests:**
-7. **Integration work:**
-8. **Important technical decisions:**
-9. **Difficulties and how I solved them:**
+**2. Frontend.** Two pages: *My certificates* (upload form with training, title, issuer, dates and file; the employee's certificates with validity and review status, download and delete) and *Team certificates* for managers (filter by team and review status, Download / Verify / Reject; a manager's own certificate shows "Your own certificate" instead of Verify).
+
+**3. Backend / API.** Node.js + Express. 10 endpoints: `POST /api/certificates`, `GET /api/certificates/me`, `GET /api/certificates?teamId=&reviewStatus=`, `GET /api/certificates/{id}`, `PUT /api/certificates/{id}`, `GET /api/certificates/{id}/download`, `PATCH /api/certificates/{id}/verify`, `DELETE /api/certificates/{id}`, `GET /api/compliance/teams/{teamId}`, `POST /api/compliance/run-check`, plus `/health`. Status codes: 200, 201, 204, 400, 401, 403, 404, 409, 413, 415. S2 calls S1 to check the training, the employee and team ownership, and S3 calls S2 for the team's compliance flags.
+
+**4. Data operations.** Tables: `certificates`, `compliance_flags`, `audit_log`; files in the private S3 bucket `certificates`. Create: certificate rows and objects, audit entries, flags. Read/query: own certificates, team certificates by review status, team compliance. Update: certificate details, review decision, flag resolution. Delete: soft delete (the row is kept for the audit trail and the object removed). The audit log is append-only for the S2 role.
+
+**5. Security controls.** Cognito JWT and role checks on every route; ownership checks (an employee only sees their own certificates, a manager only their team's, and nobody can verify their own certificate); file type checked from the file's magic bytes, so a renamed `.exe` is rejected (415); size limit 413; validation of dates (issue date before expiry) and fields; S3 bucket with all public access blocked, versioning and KMS default encryption; downloads only through pre-signed links that expire after 300 seconds; the SendGrid API key is read from AWS Secrets Manager (`ett/sendgrid`) and never logged, and e-mail is skipped safely when no key is set; an append-only audit log of certificate actions; gitleaks secret scanning in GitHub Actions on every push and pull request.
+
+**6. Tests.** 142 unit/route tests (`npm test`) covering upload, file types, storage, listing and editing, review, compliance, the daily check, the upstream client, validation, the frontend helpers and a dedicated security file (401/403/404/400/413/415, IDOR, renamed exe, own-certificate verify, the 300 s link, no secrets in logs). All pass.
+
+**7. Integration.** I built the platform the three services run on: Docker Compose, nginx with HTTPS routing to the three services, the dev script, the idempotent Floci init script (KMS key, bucket, secrets, log groups, IAM roles and policies, EventBridge schedules), the least-privilege IAM policies, the fallback scheduler, and the Floci spike that recorded what the emulator supports. I fixed the Docker build context so every service can use the shared code, set up the per-service database roles, `.gitignore` and `.env.example`, and merged the team's pull requests.
+
+**8. Important technical decisions.** Checking magic bytes instead of trusting the file extension or the browser's content type; pre-signed links instead of streaming files through the service; soft delete plus an append-only audit log; making the reminder e-mail optional so the system works without a SendGrid key; running all AWS services locally on Floci behind one endpoint.
+
+**9. Difficulties and how I solved them.** Floci rejected `rate(1 days)` (AWS wants `rate(1 day)`), found by the spike and fixed. gitleaks flagged the fake JWT and the public RFC 6238 test value in our tests, so they were allow-listed with a comment. A `.env` saved as UTF-16 by PowerShell broke Docker Compose; it was converted back to UTF-8. Pull request conflicts were resolved by rebasing on main before merging.
+
+Commits: [docker-compose and nginx](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/7c3454e), [Floci init](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/d066fed), [IAM policies](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/d6d6070), [build context and DB roles](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/ee0b433), [upload](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/b1ef2db), [download and verify](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/d9d6a8f), [daily check](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/5279a96), [S2 pages](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/503e667), [security tests](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/53cb551), [gitleaks CI](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/f193067). Some early platform commits appear under the Git name "Your Real Name" because Git was not configured yet on that PC; they are mine.
 
 ---
 
 ## Yahia Waleed: Service 3, Manager Dashboard & Reports
 
-Facts from Git: S3 compliance rules (with hand-calculated tests); dashboard summary, employees and attention endpoints; daily snapshot and trend; team reports, CSV export with formula-injection protection, and report history; the shared frontend shell (sign-in with MFA, API helper, nav, CSP) and the S3 dashboard and reports pages; threat model; security test suite (T01–T17) and secret review; Newman end-to-end tests; CloudWatch log shipping, metric filter, alarm and query scripts; SNS topics, the alarm's SNS action and the S3 daily compliance summary; S3 database login from Secrets Manager (fail closed, svc_s3 only); UI theme; this report. AWS services in my code: Secrets Manager, CloudWatch (Logs, metric filters, alarms), SNS (security alerts and the daily summary), Cognito (sign-in, MFA, sign-out).
+**1. Owned component and functions.** Service 3 turns the data of S1 and S2 into a compliance view for managers. Functions: (a) team dashboard: summary (compliance rate, compliant employees, overdue, missing, expired, expiring soon), the employee list with status filter, and the "needs attention" list; (b) a daily snapshot job and a 30-day compliance trend; (c) team reports with a category filter, CSV export and report history (view and delete).
 
-1. **Owned component and at least 3 functions:**
-2. **Frontend:**
-3. **Backend / API:**
-4. **Data operations:**
-5. **Security controls:**
-6. **Tests:**
-7. **Integration work:**
-8. **Important technical decisions:**
-9. **Difficulties and how I solved them:**
+**2. Frontend.** The *Dashboard* page (summary cards coloured by status, trend chart, attention list, employee table with filter) and the *Reports* page (team and category, Generate report, Download CSV, history table). I also built the shared frontend shell used by all pages: sign-in with Cognito and the MFA step, sign-out, the API helper (Bearer token, error messages, sign-out on 401), the role-based navigation and home page, a visible access-denied message, and the site theme. No inline scripts or styles, so a strict CSP is possible.
+
+**3. Backend / API.** Node.js + Express. 9 endpoints: `GET /api/dashboard/teams/{teamId}/summary`, `GET /api/dashboard/teams/{teamId}/employees?status=`, `GET /api/dashboard/teams/{teamId}/attention`, `GET /api/dashboard/teams/{teamId}/trend?days=`, `POST /api/dashboard/run-snapshot`, `GET /api/reports/teams/{teamId}?category=`, `GET /api/reports/teams/{teamId}/export?category=`, `GET /api/reports/history`, `DELETE /api/reports/history/{id}`, plus `/health`. Status codes: 200, 204, 400, 401, 403, 404, 502, 503. S3 holds real business logic: it calls S1 (employees, assignments) and S2 (compliance flags) and applies the compliance rules (Overdue, Compliant, reasons, rate, attention order). If S1 or S2 fails it answers 502 and never writes half a snapshot.
+
+**4. Data operations.** Tables: `compliance_snapshots` (one row per employee per day, upsert so running the job twice keeps one row) and `report_runs` (report history). Create: snapshots and report runs. Read/query: trend over N days, history. Delete: a report run from the history. All SQL is parameterised and the snapshot is written in one transaction.
+
+**5. Security controls.** Cognito JWT and role checks (dashboard and reports for Managers only; the snapshot job only for the Service client); team ownership checked through S1, so a manager of another team gets 403; validation (UUIDs, `days` between 1 and 90, category length); CSV formula-injection protection (cells starting with `= + - @` are escaped); the S3 database login comes from AWS Secrets Manager (`ett/db/s3`) and the service refuses to start without it or with any role other than `svc_s3`; logs shipped to CloudWatch with tokens and passwords redacted; a CloudWatch metric filter and alarm for repeated 401/403, whose action notifies an SNS topic; the daily summary on SNS carries team totals only; nginx sends HSTS, CSP, nosniff and frame headers; least-privilege IAM policy for S3 (only its own secret, its own log group and one SNS topic).
+
+**6. Tests.** 97 unit/route tests for S3 (`npm test`, hand-calculated compliance tables, every endpoint and error code, snapshot idempotency, CSV injection, Secrets Manager login, SNS). 56 tests for the shared modules and 12 for the frontend helpers. The security test suite T01–T17 against the running system (17/17 passed) and the secret review. The Newman end-to-end collection across S1, S2 and S3 (35/35 assertions passed). The logging scripts (suspicious activity, security log queries) and the SNS delivery check.
+
+**7. Integration.** S3 depends on S1 and S2, so I tested the three together: the Newman collection runs the full scenario (manager creates and assigns a training, the employee completes it and uploads a certificate, the dashboard changes, the manager verifies, the report reflects it). I also wrote the threat model, the CloudWatch shipping used by S2 and S3, the evidence scripts and the final report.
+
+**8. Important technical decisions.** Computing compliance live from S1 and S2 instead of copying their data; storing only a daily snapshot for the trend; failing closed when a dependency or the database secret is missing; signing AWS requests (SigV4) in a small shared module with no SDK; SNS publishing that never fails the job (fail-soft).
+
+**9. Difficulties and how I solved them.** Docker would not start until virtualization was enabled in the BIOS. On Windows, the Newman runner broke on a folder name with a space and did not trust our self-signed certificate; I passed relative paths and gave Node the certificate. The security suite found that HSTS was missing (T17) and I added it to nginx. The alarm was first expected not to fire on the emulator; testing showed it does, and the documentation was corrected.
+
+Commits: [compliance rules](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/ada672a), [dashboard endpoints](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/f2ab963), [snapshot and trend](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/01935b8), [reports and CSV](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/b8ad82b), [frontend shell and S3 pages](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/b7800c8), [threat model](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/e149b9e), [security suite](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/dcd5769), [Newman](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/caa0df7), [CloudWatch](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/5f0ef80), [Secrets Manager](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/b1d0af7), [SNS](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/ecc8118), [fixes and HSTS](https://github.com/karikasaad/Employee-training-tracker-team-28/commit/904dfdd).
