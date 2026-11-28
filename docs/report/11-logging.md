@@ -28,4 +28,4 @@ There are also business events: S3's `report_exported` (who exported which team'
 
 **[EVIDENCE NEEDED: the output of `node scripts/sns_peek.js --test`, showing both SNS topics delivering a message (screenshot 13-sns).]**
 
-**Limitation:** Floci creates the alarm but does not evaluate it, so its state stays OK (section 16). On AWS it would move to ALARM and publish to the SNS topic `ett-security-alerts`, which is already set as the alarm's action.
+**Result:** after `generate_suspicious_activity.js`, Floci moved the alarm from OK to ALARM ("Threshold Crossed") within about two minutes, and SNS delivered the alarm message on `ett-security-alerts` (screenshot 13-sns). The query script ran just before the change, so it still shows the alarm as OK.

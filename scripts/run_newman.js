@@ -27,14 +27,33 @@ fs.mkdirSync(OUT, { recursive: true });
 
 // EN: newman comes from npm (npx downloads it once). TLS stays on: we trust our own self-signed certificate.
 // Franco: newman gai men npm (npx beyenazzelo mara). El TLS shaghal: benseddaa2 el certificate bta3na.
+// EN: paths are passed RELATIVE to the repo root: on Windows the command goes through the shell, and a folder
+//     name with a space (e.g. "Cloud Project") would split an absolute path into two words.
+// Franco: el paths relative le root el repo: 3ala Windows el command beyfoot 3ala el shell, w esm folder feeh
+//     space (zay "Cloud Project") kan beykassar el path el kamel le kelmeteen.
+const rel = (p) => path.relative(ROOT, p);
 const args = ['--yes', 'newman@6', 'run', path.join('tests', 'newman', 'e2e.postman_collection.json'),
   '-e', path.join('tests', 'newman', 'local.postman_environment.json'),
   '--env-var', `baseUrl=${s.baseUrl}`, '--env-var', `clientId=${s.clientId}`, '--env-var', `password=${s.password}`,
   '--working-dir', path.join('tests', 'newman'),
-  '--reporters', 'cli,json', '--reporter-json-export', REPORT];
-if (fs.existsSync(CA)) args.push('--ssl-extra-ca-certs', CA);
+  '--reporters', 'cli,json', '--reporter-json-export', rel(REPORT)];
+if (fs.existsSync(CA)) args.push('--ssl-extra-ca-certs', rel(CA));
 
-const run = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', args, { cwd: ROOT, stdio: 'inherit', shell: process.platform === 'win32' });
+// EN: Newman runs on Node, so we also hand our certificate to Node itself (NODE_EXTRA_CA_CERTS), the same way
+//     the security suite does. If the PC already has its own extra CA file, both are joined in one temp bundle.
+// Franco: Newman shaghal 3ala Node, f bneddy el certificate bta3na le Node nafso kaman (NODE_EXTRA_CA_CERTS), zay
+//     el security suite. Law el gehaz 3ando CA file tany, bengamma3 el etnein fe bundle mo2a2at.
+const env = { ...process.env, NODE_NO_WARNINGS: '1' };
+if (fs.existsSync(CA)) {
+  let bundle = fs.readFileSync(CA, 'utf8');
+  const prev = process.env.NODE_EXTRA_CA_CERTS;
+  if (prev && fs.existsSync(prev)) bundle = `${fs.readFileSync(prev, 'utf8')}\n${bundle}`;
+  const tmp = path.join(require('node:os').tmpdir(), 'ett-newman-ca.pem');
+  fs.writeFileSync(tmp, bundle);
+  env.NODE_EXTRA_CA_CERTS = tmp;
+}
+fs.rmSync(REPORT, { force: true }); // EN: never show an old report as today's / Franco: mane3redsh report adeem
+const run = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', args, { cwd: ROOT, env, stdio: 'inherit', shell: process.platform === 'win32' });
 if (!fs.existsSync(REPORT)) {
   console.error('Newman did not produce a report.');
   process.exit(run.status || 1);

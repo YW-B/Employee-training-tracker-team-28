@@ -9,7 +9,7 @@ AWS is simulated locally with Floci on Docker. Everything here is written from w
 | Storage | Floci runs with `FLOCI_STORAGE_MODE=memory`: data is lost when it restarts | keeps local runs clean | run `python scripts/dev.py init` again (idempotent); persistent mode if needed |
 | Daily jobs | EventBridge schedule -> HTTP call may not be supported (to confirm); a fallback cron container (`infra/scheduler`) calls the jobs with a service token | scheduled HTTP targets are not verified in the emulator | EventBridge scheduled rule + API destination with OAuth client credentials (what `init.py` tries to create), CloudWatch alarm on failed invocations |
 | Cognito | Groups claim, 15-minute access tokens, JWKS signature check and the client-credentials (service) client confirmed working on Floci (`docs/FLOCI_COGNITO_NOTES.md`); MFA: see the spike results below | emulator coverage of MFA unknown | real Cognito user pool with MFA required for managers, 15-minute access tokens |
-| CloudWatch | Alarms may be created but not fire (to confirm) | emulator coverage unknown | real alarms; the alarm already has an SNS action to `ett-security-alerts` |
+| CloudWatch | The alarm fires on Floci (OK to ALARM, then SNS); see the logging section below | - | the same alarm on AWS |
 | TLS | Self-signed certificate on nginx | local only | ACM certificate on CloudFront / load balancer |
 | Secrets | The SendGrid secret holds a placeholder locally, so e-mails are skipped | the real key must never be committed | add the real key by hand to Secrets Manager |
 
@@ -17,7 +17,7 @@ AWS is simulated locally with Floci on Docker. Everything here is written from w
 
 | Area | What differs from real AWS | Reason | Proposed improvement on real AWS |
 | --- | --- | --- | --- |
-| CloudWatch alarm | `node scripts/setup_log_alarms.js` creates the metric filter on each log group and the alarm `ett-repeated-auth-failures` (5 or more 401/403 in 5 minutes), but the emulator does not evaluate alarms, so its state stays `OK` even after `scripts/generate_suspicious_activity.js` | emulators store alarms without evaluating metrics | on AWS the alarm moves to `ALARM` and notifies the team through an SNS topic |
+| CloudWatch alarm | `node scripts/setup_log_alarms.js` creates the metric filter on each log group and the alarm `ett-repeated-auth-failures` (5 or more 401/403 in 5 minutes). Tested on 2026-11-28: after `generate_suspicious_activity.js` Floci moved the alarm from OK to ALARM within about 2 minutes and published it to the SNS topic `ett-security-alerts` (seen with `scripts/sns_peek.js`). Only the metric-based alarm was tested; anomaly detection and composite alarms were not | emulator coverage of other alarm types unknown | the same alarm on AWS, with an e-mail subscription on the topic |
 | Security log queries | The evidence is read back with `node scripts/security_log_queries.js` (FilterLogEvents), counted per service, path and minute | CloudWatch Logs Insights queries are not emulated | use Logs Insights saved queries and a CloudWatch dashboard |
 | Log shipping | Each service sends its JSON logs from inside the process (`services/common/cloudwatch.js`). If CloudWatch is down, that batch is dropped after one warning, and the lines stay in `docker logs` | keeps the services independent of the emulator | on AWS use the awslogs log driver or the CloudWatch agent, with a retention policy per log group |
 
@@ -50,5 +50,4 @@ Real results from `python scripts/dev.py spike` (see `docs/FLOCI_SPIKE.md`).
 | Area | What differs from real AWS | Reason | Proposed improvement on real AWS |
 | --- | --- | --- | --- |
 | SNS e-mail | `setup_log_alarms.js` can subscribe `ALERT_EMAIL` to both topics, but the emulator does not send real e-mail, so delivery is shown with an SQS subscription instead (`node scripts/sns_peek.js --test`) | emulators do not run a mail server | on AWS the address gets a confirmation e-mail, then every alert and daily summary |
-| Security alert | The alarm's SNS action is stored, but the emulator never moves the alarm to `ALARM`, so `ett-security-alerts` gets no automatic message locally | alarms are not evaluated (see above) | on AWS the alarm publishes to `ett-security-alerts` when it fires |
 | Account id in the topic ARN | `docker-compose.yml` uses `arn:aws:sns:us-east-1:000000000000:ett-compliance-daily`. If your emulator uses another account id, copy the ARN that `setup_log_alarms.js` prints into `SNS_DAILY_TOPIC_ARN` in `.env` | emulators differ | the real account id; the IAM policy already allows only this topic |

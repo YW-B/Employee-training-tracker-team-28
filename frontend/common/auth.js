@@ -148,7 +148,9 @@
       return null;
     }
     if (roles.length && !roles.some((r) => user.roles.includes(r))) {
-      root.location.href = '/home.html';
+      // EN: wrong role: back to home with a visible "access denied" message (the API also answers 403).
+      // Franco: role ghalat: nerga3 lel home w resala "access denied" bayna (el API kaman beyrod 403).
+      root.location.href = '/home.html?denied=1';
       return null;
     }
     return user;
