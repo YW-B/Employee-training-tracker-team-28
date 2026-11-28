@@ -9,6 +9,7 @@ Everything here comes from a real run of our local stack. Never type a result by
 | `node tests/security/run_security_tests.js` (run it twice, 16 minutes apart, for T04) | `security_test_results.md`, `raw/` | Security testing |
 | `node scripts/run_newman.js` | `newman/summary.md`, `newman/newman-report.json` | Integrated testing |
 | `node scripts/setup_log_alarms.js`, then `node scripts/generate_suspicious_activity.js`, wait 10 s, then `node scripts/security_log_queries.js 30` | `logging/security_log_queries.md` | Logging and monitoring |
+| `node scripts/sns_peek.js --test` (after `setup_log_alarms.js`) | terminal output, screenshot it (`13-sns.png`) | Logging and monitoring |
 | `node --test` in `services/common`, `services/dashboard-reports` (and the other services) | terminal output, screenshot it | Unit testing |
 
 ## Screenshots to take (save them in `docs/evidence/screenshots/`)
@@ -24,3 +25,4 @@ Everything here comes from a real run of our local stack. Never type a result by
 9. `10-cloudwatch.png`: the output of `security_log_queries.js` (security events per service and per path).
 10. `11-alarm.png`: the alarm and the metric filters listed in Floci (`aws --endpoint-url http://localhost:4566 cloudwatch describe-alarms` and `logs describe-metric-filters --log-group-name /ett/s3`).
 11. `12-s3-private.png`: the website returning 404 for `/certificates/`, and a download link showing `X-Amz-Expires=300`.
+12. `13-sns.png`: the output of `node scripts/sns_peek.js --test` (both SNS topics deliver a message to the SQS queue).

@@ -214,6 +214,13 @@ def main():
         step(f"log group {group}", lambda g=group: logs.create_log_group(logGroupName=g))
         step(f"retention 7 days {group}", lambda g=group: logs.put_retention_policy(logGroupName=g, retentionInDays=7))
 
+    print("\n[SNS]  (security alarm notifications + Service 3 daily summary)")
+    # EN: create_topic is safe to repeat: an existing topic is just returned.
+    # Franco: create_topic momken yetkarrar: law el topic mawgood beyrga3o bas.
+    sns = client("sns")
+    for topic in ("ett-security-alerts", "ett-compliance-daily"):
+        step(f"topic {topic}", lambda t=topic: sns.create_topic(Name=t))
+
     print("\n[IAM least privilege]  (policies from infra/iam/*.json)")
     iam = client("iam")
     acct = account_id()

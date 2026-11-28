@@ -73,11 +73,16 @@ async function callAws(service, target, payload, { config = awsConfig(), fetchIm
   return data;
 }
 
-// EN: the older "query" protocol (form fields, XML answer), used by CloudWatch alarms (PutMetricAlarm).
-// Franco: el protocol el adeem "query" (form fields w rad XML), bey-esta3melo el CloudWatch alarms.
-async function callAwsQuery(service, action, params, { config = awsConfig(), fetchImpl = globalThis.fetch, timeoutMs = 5000 } = {}) {
-  const url = config.endpoint || `https://${service === 'monitoring' ? 'monitoring' : service}.${config.region}.amazonaws.com/`;
-  const body = new URLSearchParams({ Action: action, Version: '2010-08-01', ...params }).toString();
+// EN: the older "query" protocol (form fields, XML answer), used by CloudWatch alarms (PutMetricAlarm) and SNS.
+//     Each AWS service has its own API version: CloudWatch = 2010-08-01 (default), SNS = 2010-03-31.
+// Franco: el protocol el adeem "query" (form fields w rad XML), bey-esta3melo el CloudWatch alarms w SNS.
+//     Kol service leha version: CloudWatch = 2010-08-01 (el default), SNS = 2010-03-31.
+const QUERY_VERSIONS = { monitoring: '2010-08-01', sns: '2010-03-31' };
+
+async function callAwsQuery(service, action, params, { config = awsConfig(), fetchImpl = globalThis.fetch, timeoutMs = 5000, version } = {}) {
+  const url = config.endpoint || `https://${service}.${config.region}.amazonaws.com/`;
+  const apiVersion = version || QUERY_VERSIONS[service] || '2010-08-01';
+  const body = new URLSearchParams({ Action: action, Version: apiVersion, ...params }).toString();
   const headers = signRequest({ url, body, service, ...config, contentType: 'application/x-www-form-urlencoded; charset=utf-8' });
   delete headers.host;
   const res = await fetchImpl(url, { method: 'POST', headers, body, signal: AbortSignal.timeout(timeoutMs) });

@@ -38,7 +38,7 @@ Facts from Git: Docker Compose, nginx HTTPS and dev script; Floci init (KMS, buc
 
 ## Yahia Waleed: Service 3, Manager Dashboard & Reports
 
-Facts from Git: S3 compliance rules (with hand-calculated tests); dashboard summary, employees and attention endpoints; daily snapshot and trend; team reports, CSV export with formula-injection protection, and report history; the shared frontend shell (sign-in with MFA, API helper, nav, CSP) and the S3 dashboard and reports pages; threat model; security test suite (T01–T17) and secret review; Newman end-to-end tests; CloudWatch log shipping, metric filter, alarm and query scripts; S3 database login from Secrets Manager (fail closed, svc_s3 only); UI theme; this report. AWS services in my code: Secrets Manager, CloudWatch (Logs, metric filters, alarms), Cognito (sign-in, MFA, sign-out).
+Facts from Git: S3 compliance rules (with hand-calculated tests); dashboard summary, employees and attention endpoints; daily snapshot and trend; team reports, CSV export with formula-injection protection, and report history; the shared frontend shell (sign-in with MFA, API helper, nav, CSP) and the S3 dashboard and reports pages; threat model; security test suite (T01–T17) and secret review; Newman end-to-end tests; CloudWatch log shipping, metric filter, alarm and query scripts; SNS topics, the alarm's SNS action and the S3 daily compliance summary; S3 database login from Secrets Manager (fail closed, svc_s3 only); UI theme; this report. AWS services in my code: Secrets Manager, CloudWatch (Logs, metric filters, alarms), SNS (security alerts and the daily summary), Cognito (sign-in, MFA, sign-out).
 
 1. **Owned component and at least 3 functions:**
 2. **Frontend:**

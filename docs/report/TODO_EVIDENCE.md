@@ -19,5 +19,6 @@ Tick each item when the real screenshot, link or value is in the report. Never i
 | 13 | Fresh-clone check screenshot | 15 | Karim |
 | 14 | App screenshots 01–06 and 12 listed in `docs/evidence/README.md` | 2, 8, 10 | Yahia (S3), Kerolus (S1), Karim (S2) |
 | 15 | Each member's contribution statement, in their own words | contributions | each member |
+| 18 | Screenshot: `node scripts/sns_peek.js --test` output (13-sns) | 11 | Yahia |
 | 17 | Screenshot of a green gitleaks run (GitHub Actions tab) | 8 | Karim |
 | 16 | Exact submission deadline (date and time) and required file format | - | Yahia |

@@ -78,7 +78,7 @@ The end-to-end security suite (against the running stack through nginx) adds a s
 |---|---|
 | Physical data centres, hardware and the network between them | Validating every input and returning the right status code (400, 401, 403, 404, 413, 415) |
 | Patching the operating system and runtime of the managed services (Elastic Beanstalk platform updates, RDS engine patches) | Role and ownership checks in every service's backend, on every request |
-| Availability of Cognito, S3, RDS, Secrets Manager, CloudWatch and KMS | Configuring them safely: private bucket, IAM roles with least privilege, MFA for managers, 15-minute tokens |
+| Availability of Cognito, S3, RDS, Secrets Manager, CloudWatch, SNS and KMS | Configuring them safely: private bucket, IAM roles with least privilege, MFA for managers, 15-minute tokens |
 | Built-in encryption at rest and the TLS endpoints of AWS services | Keeping secrets out of code and logs, rotating them after a compromise, and reviewing our own logs and alarms |
 
 ## Least privilege (and why not one admin role)
@@ -105,5 +105,5 @@ AWS is simulated locally with Floci (see [`docs/FLOCI_SPIKE.md`](FLOCI_SPIKE.md)
 
 - **A stolen token works until it expires** (at most 15 minutes). Accepted for coursework scale. On real AWS: revoke refresh tokens on sign-out and add CloudFront/WAF rate limiting.
 - **No CSRF token**: the API uses Bearer tokens in the `Authorization` header (not cookies), so a third-party site cannot make the browser send them.
-- **Repeated 401/403 attempts** are logged as `auth_failure` / `forbidden` warnings. A CloudWatch metric filter and an alarm (5 or more in 5 minutes) were created successfully in the Floci spike, and the logging branch adds them for the services. Whether the alarm actually fires can only be verified on real AWS, because Floci only confirms it was created.
+- **Repeated 401/403 attempts** are logged as `auth_failure` / `forbidden` warnings. A CloudWatch metric filter and an alarm (5 or more in 5 minutes) were created successfully in the Floci spike, and the logging branch adds them for the services. Whether the alarm actually fires can only be verified on real AWS, because Floci only confirms it was created. The alarm's action publishes to the SNS topic `ett-security-alerts`, so the team is told without watching the logs. The S3 daily summary on `ett-compliance-daily` carries team totals only (no employee names or IDs), so a subscriber leak does not expose personal data, and S3's role may publish to that one topic only.
 - **Denial of service** is out of scope for this project. Timeouts (3 s between services, 5 s per SQL statement) and body-size limits keep one slow part from hanging the rest.

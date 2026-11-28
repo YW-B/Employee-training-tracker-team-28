@@ -10,7 +10,7 @@
 | **Input validation** | UUIDs, dates, enums, lengths and ranges (for example `days` 1–90, category ≤ 50) are validated before any other call. Files are checked by magic bytes, with a 5 MB limit. SQL is parameterised only. CSV formula cells are escaped. The frontend shows data with `textContent` only (no `innerHTML`), so injected HTML never runs. | each service's validation; `services/common/db.js`; `frontend/common/ui.js` |
 | **Secure transport** | HTTPS only: HTTP is redirected, HSTS is set, and the Content-Security-Policy allows no inline scripts, plus `X-Content-Type-Options: nosniff` and `frame-ancestors 'none'`. On AWS: CloudFront/ACM certificates, and RDS over TLS. | `infra/nginx/nginx.conf` |
 | **Encryption at rest** | KMS default encryption on the certificates bucket, with versioning. RDS encrypted with KMS on AWS. A SHA-256 hash of every file is stored to detect tampering. | `infra/floci/init.py`, S2 |
-| **Logging and monitoring** | JSON logs from every service, shipped to CloudWatch Logs (`/ett/s1..s3`). A metric filter counts 401/403, and an alarm fires at 5 or more within 5 minutes. An append-only audit log covers certificate actions, and the `report_exported` event is logged. | `services/common/logging.js`, `cloudwatch.js`, `scripts/setup_log_alarms.js` |
+| **Logging and monitoring** | JSON logs from every service, shipped to CloudWatch Logs (`/ett/s1..s3`). A metric filter counts 401/403, and an alarm fires at 5 or more within 5 minutes. The alarm notifies the SNS topic `ett-security-alerts`. An append-only audit log covers certificate actions, and the `report_exported` event is logged. | `services/common/logging.js`, `cloudwatch.js`, `scripts/setup_log_alarms.js` |
 
 ## Shared responsibility
 
@@ -18,7 +18,7 @@
 |---|---|
 | Physical data centres, hardware and the network | Validating every input and returning the right status code |
 | Patching the OS and runtime of the managed services (Elastic Beanstalk platform updates, RDS engine patches) | Role and ownership checks in every service, on every request |
-| Availability of Cognito, S3, RDS, Secrets Manager, CloudWatch and KMS | Configuring them safely: private bucket, least-privilege IAM, MFA for managers, short-lived tokens |
+| Availability of Cognito, S3, RDS, Secrets Manager, CloudWatch, SNS and KMS | Configuring them safely: private bucket, least-privilege IAM, MFA for managers, short-lived tokens |
 | The built-in encryption features and TLS endpoints of AWS services | Keeping secrets out of code and logs, rotating them after a leak, and watching our logs and alarms |
 
 ## Why each identity gets only its own permissions

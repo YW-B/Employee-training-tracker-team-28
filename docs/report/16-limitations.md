@@ -9,6 +9,7 @@ The detailed list, with real results from the Floci runs, is in `docs/LIMITATION
 - **S3:** Floci serves objects without a signature, and pre-signed URLs do not expire. Our code still issues 5-minute signed links, and the website never exposes the bucket. On AWS, Block Public Access refuses unsigned reads.
 - **Bucket versioning and encryption** are set by `init.py` but cannot be read back from Floci.
 - **CloudWatch:** logs, metric filters and the alarm work, but the alarm is never evaluated, so it stays OK. There are no Logs Insights queries; we read the logs with FilterLogEvents instead.
+- **SNS:** the topics, the alarm's SNS action and S3's daily summary work, but the emulator sends no real e-mail, so we show delivery through an SQS subscription (`scripts/sns_peek.js`). Because the alarm never fires locally, `ett-security-alerts` only receives the test message.
 - **Cognito:** see `docs/FLOCI_COGNITO_NOTES.md` for what Floci supports (groups, token lifetime, MFA). JWT expiry is enforced by our own code either way.
 - **EventBridge Scheduler** HTTP targets: a fallback cron container runs the daily jobs locally.
 - **SendGrid:** no real key is stored locally, so reminders are logged as "email skipped".
