@@ -39,7 +39,21 @@ const args = ['--yes', 'newman@6', 'run', path.join('tests', 'newman', 'e2e.post
   '--reporters', 'cli,json', '--reporter-json-export', rel(REPORT)];
 if (fs.existsSync(CA)) args.push('--ssl-extra-ca-certs', rel(CA));
 
-const run = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', args, { cwd: ROOT, stdio: 'inherit', shell: process.platform === 'win32' });
+// EN: Newman runs on Node, so we also hand our certificate to Node itself (NODE_EXTRA_CA_CERTS), the same way
+//     the security suite does. If the PC already has its own extra CA file, both are joined in one temp bundle.
+// Franco: Newman shaghal 3ala Node, f bneddy el certificate bta3na le Node nafso kaman (NODE_EXTRA_CA_CERTS), zay
+//     el security suite. Law el gehaz 3ando CA file tany, bengamma3 el etnein fe bundle mo2a2at.
+const env = { ...process.env, NODE_NO_WARNINGS: '1' };
+if (fs.existsSync(CA)) {
+  let bundle = fs.readFileSync(CA, 'utf8');
+  const prev = process.env.NODE_EXTRA_CA_CERTS;
+  if (prev && fs.existsSync(prev)) bundle = `${fs.readFileSync(prev, 'utf8')}\n${bundle}`;
+  const tmp = path.join(require('node:os').tmpdir(), 'ett-newman-ca.pem');
+  fs.writeFileSync(tmp, bundle);
+  env.NODE_EXTRA_CA_CERTS = tmp;
+}
+fs.rmSync(REPORT, { force: true }); // EN: never show an old report as today's / Franco: mane3redsh report adeem
+const run = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', args, { cwd: ROOT, env, stdio: 'inherit', shell: process.platform === 'win32' });
 if (!fs.existsSync(REPORT)) {
   console.error('Newman did not produce a report.');
   process.exit(run.status || 1);
