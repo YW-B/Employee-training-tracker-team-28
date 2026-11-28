@@ -59,7 +59,7 @@ test('requireSignIn: no token -> sign-in page; wrong role -> home; right role ->
   assert.strictEqual(globalThis.location.href, '/index.html');
   signInAs({ sub: 'e1', exp: inMinutes(10), 'cognito:groups': ['Employee'] });
   assert.strictEqual(auth.requireSignIn(['Manager']), null);
-  assert.strictEqual(globalThis.location.href, '/home.html');
+  assert.strictEqual(globalThis.location.href, '/home.html?denied=1');
   signInAs({ sub: 'm1', exp: inMinutes(10), 'cognito:groups': ['Manager'] });
   assert.strictEqual(auth.requireSignIn(['Manager']).sub, 'm1');
 });
