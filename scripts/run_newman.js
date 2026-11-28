@@ -27,12 +27,17 @@ fs.mkdirSync(OUT, { recursive: true });
 
 // EN: newman comes from npm (npx downloads it once). TLS stays on: we trust our own self-signed certificate.
 // Franco: newman gai men npm (npx beyenazzelo mara). El TLS shaghal: benseddaa2 el certificate bta3na.
+// EN: paths are passed RELATIVE to the repo root: on Windows the command goes through the shell, and a folder
+//     name with a space (e.g. "Cloud Project") would split an absolute path into two words.
+// Franco: el paths relative le root el repo: 3ala Windows el command beyfoot 3ala el shell, w esm folder feeh
+//     space (zay "Cloud Project") kan beykassar el path el kamel le kelmeteen.
+const rel = (p) => path.relative(ROOT, p);
 const args = ['--yes', 'newman@6', 'run', path.join('tests', 'newman', 'e2e.postman_collection.json'),
   '-e', path.join('tests', 'newman', 'local.postman_environment.json'),
   '--env-var', `baseUrl=${s.baseUrl}`, '--env-var', `clientId=${s.clientId}`, '--env-var', `password=${s.password}`,
   '--working-dir', path.join('tests', 'newman'),
-  '--reporters', 'cli,json', '--reporter-json-export', REPORT];
-if (fs.existsSync(CA)) args.push('--ssl-extra-ca-certs', CA);
+  '--reporters', 'cli,json', '--reporter-json-export', rel(REPORT)];
+if (fs.existsSync(CA)) args.push('--ssl-extra-ca-certs', rel(CA));
 
 const run = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', args, { cwd: ROOT, stdio: 'inherit', shell: process.platform === 'win32' });
 if (!fs.existsSync(REPORT)) {
