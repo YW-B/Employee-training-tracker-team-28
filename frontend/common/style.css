@@ -26,7 +26,9 @@
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+/* EN: always the light theme (stops browsers that force a dark/grey page) and the page colour fills the window.
+   Franco: dayman el theme el fate7 (3ashan el browsers elly beyghamma2o el page) w lon el page yemla el shasha. */
+html { -webkit-text-size-adjust: 100%; color-scheme: light only; background: var(--paper); min-height: 100%; }
 body {
   margin: 0;
   font: 15px/1.55 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -167,7 +169,10 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 /* ---------------------------------------------------------------- sign-in page
    EN: two halves: the pine side says what the tool is, the white side is the form. Stacks on a phone.
    Franco: noseen: el no2s el pine beye2ool el tool di eh, w el abyad feeh el form. Bey-rattab ta7t ba3d 3al mobile. */
-body.signin-page { min-height: 100vh; display: grid; grid-template-columns: minmax(280px, 5fr) 7fr; }
+body.signin-page {
+  min-height: 100vh; min-height: 100dvh; /* EN: full window height on every browser / Franco: tool el shasha */
+  display: grid; grid-template-columns: minmax(280px, 5fr) 7fr; grid-template-rows: 1fr;
+}
 .signin-side {
   display: flex; flex-direction: column; justify-content: space-between; gap: 32px;
   padding: 48px; background: var(--pine); color: #e3eeeb;
@@ -204,7 +209,7 @@ body.signin-page { min-height: 100vh; display: grid; grid-template-columns: minm
   .row > div { flex: 1 1 100%; }
   table { display: block; overflow-x: auto; }
   td:first-child { white-space: nowrap; }
-  body.signin-page { grid-template-columns: 1fr; }
+  body.signin-page { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .signin-side { padding: 28px 20px; }
   .signin-side p { font-size: 18px; }
 }
